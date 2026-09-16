@@ -11,6 +11,8 @@ export interface StoreOptions {
   log: Logger;
   /** Snapshot debounce; defaults to 250 ms. */
   debounceMs?: number;
+  /** Demo control: shifts "now" by this many minutes (see `setClockOffsetMin`). */
+  clockOffsetMin?: number;
 }
 
 /**
@@ -20,6 +22,7 @@ export interface StoreOptions {
 export class Store {
   private state: State;
   private readonly clock: Clock;
+  private clockOffsetMin: number;
   private readonly dataFile: string | undefined;
   private readonly log: Logger;
   private readonly debounceMs: number;
@@ -29,6 +32,7 @@ export class Store {
   constructor(initial: State, options: StoreOptions) {
     this.state = initial;
     this.clock = options.clock ?? systemClock;
+    this.clockOffsetMin = options.clockOffsetMin ?? 0;
     this.dataFile = options.dataFile;
     this.log = options.log.child('store');
     this.debounceMs = options.debounceMs ?? 250;
@@ -47,12 +51,27 @@ export class Store {
     }
   }
 
+  /** "Now" as the household experiences it: the wall clock plus the demo offset. */
   now(): Date {
-    return this.clock.now();
+    return new Date(this.clock.now().getTime() + this.clockOffsetMin * 60_000);
   }
 
   nowIso(): string {
-    return this.clock.now().toISOString();
+    return this.now().toISOString();
+  }
+
+  /** The wall clock without the demo offset. */
+  baseNow(): Date {
+    return this.clock.now();
+  }
+
+  getClockOffsetMin(): number {
+    return this.clockOffsetMin;
+  }
+
+  /** Demo control: lets a recording at any hour replay the "mid-morning" or "evening" beats. */
+  setClockOffsetMin(minutes: number): void {
+    this.clockOffsetMin = minutes;
   }
 
   /** Read access. Treat the result as immutable — use `mutate` for changes so snapshots stay consistent. */

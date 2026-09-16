@@ -70,7 +70,9 @@ function sweepMissedSlot(
       type: 'missed_dose',
       severity: medication.critical ? 'critical' : 'warning',
       title: `Missed ${medication.name} (${spokenClockTime(slot.scheduledTime)})`,
-      detail: `${elder.prefs.preferredName} has not logged ${medication.name} ${medication.dose} due ${when}; the ${medication.graceMin}-minute grace window ended at ${spokenTime(slot.graceEndsAt, tz)}.`,
+      detail: sentence(
+        `${elder.prefs.preferredName} has not logged ${medication.name} ${medication.dose} due ${when}; the ${medication.graceMin}-minute grace window ended at ${spokenTime(slot.graceEndsAt, tz)}`
+      ),
       refId: dose.id,
       dedupeKey: `missed:${medication.id}:${slot.localDate}:${slot.scheduledTime}`,
       // A missed critical medication escalates to every caregiver (priority order); otherwise just the first.
@@ -102,11 +104,16 @@ function sweepCheckIn(
       type: 'no_checkin',
       severity: 'warning',
       title: `No check-in from ${name} yet`,
-      detail: `${name} has not checked in today; the check-in deadline is ${spokenClockTime(deadline)}.`,
+      detail: sentence(`${name} has not checked in today; the check-in deadline is ${spokenClockTime(deadline)}`),
       dedupeKey: `nocheckin:${elder.id}:${today}`,
       notified: caregiverIds.slice(0, 1),
     },
     now
   );
   if (created) result.alerts.push(alert);
+}
+
+/** Adds a full stop unless the text already ends with punctuation (spoken times end in "a.m."/"p.m."). */
+function sentence(s: string): string {
+  return /[.!?]$/.test(s) ? s : `${s}.`;
 }

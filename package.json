@@ -27,10 +27,14 @@
   },
   "scripts": {
     "dev": "tsx watch src/main.ts",
-    "build": "npm run build:server",
+    "dev:web": "vite --config web/vite.config.ts",
+    "dev:ui": "vite build --config ui/vite.config.ts --watch",
+    "build": "npm run build:server && npm run build:ui && npm run build:web",
     "build:server": "tsc -p tsconfig.server.json",
+    "build:ui": "vite build --config ui/vite.config.ts",
+    "build:web": "vite build --config web/vite.config.ts",
     "start": "node dist/server/main.js",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p ui/tsconfig.json --noEmit && tsc -p web/tsconfig.json --noEmit",
     "test": "vitest run --passWithNoTests",
     "test:watch": "vitest",
     "lint": "eslint .",
@@ -39,7 +43,8 @@
     "mcp:stdio": "node dist/server/bin/stdio.js",
     "mcp:inspect": "npx @modelcontextprotocol/inspector --server-url http://127.0.0.1:3000/mcp --transport http",
     "mcp:lifecycle": "bash scripts/mcp-lifecycle.sh",
-    "agent:smoke": "node scripts/agent-smoke.mjs"
+    "agent:smoke": "node scripts/agent-smoke.mjs",
+    "skill:validate": "npx -y skills-ref validate skills/carecompanion"
   },
   "dependencies": {
     "@aws-sdk/client-bedrock-runtime": "^3.1133.0",

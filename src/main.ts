@@ -42,6 +42,7 @@ const { app, close } = createApp({
   log,
   serverFactory: () => buildServer({ log, actions }),
   agent,
+  actions,
 });
 
 const httpServer = app.listen(config.port, config.host, () => {

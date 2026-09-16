@@ -41,6 +41,7 @@ export async function startTestServer(opts: TestServerOptions = {}): Promise<Tes
     DATA_FILE: '',
     AGENT_BRAIN: opts.converse ? 'bedrock' : 'rules',
     AGENT_RATE_PER_MIN: '0',
+    DEMO_RESET_TOKEN: 'test-token',
     ...opts.env,
     PORT: '0',
     HOST: '127.0.0.1',
@@ -71,7 +72,7 @@ export async function startTestServer(opts: TestServerOptions = {}): Promise<Tes
     rules: createRuleBrain(),
   });
 
-  const app = createApp({ config, log, serverFactory: () => buildServer({ log, actions }), agent });
+  const app = createApp({ config, log, serverFactory: () => buildServer({ log, actions }), agent, actions });
   const server = await new Promise<Server>((resolve) => {
     const s = app.app.listen(0, '127.0.0.1', () => resolve(s));
   });

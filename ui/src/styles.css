@@ -1,0 +1,26 @@
+/* Base styles for the MCP App view. Host-provided CSS variables win; the fallbacks keep it readable anywhere. */
+:root {
+  color-scheme: light dark;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family:
+    var(--font-sans, system-ui),
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+  font-size: var(--font-text-md, 15px);
+  color: var(--color-text-primary, #111827);
+  background: var(--color-background-primary, transparent);
+}
+
+.cc-app {
+  padding: 16px;
+}

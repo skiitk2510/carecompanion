@@ -2,12 +2,18 @@ import cors from 'cors';
 import type { Express } from 'express';
 import { createMcpExpressApp, hostHeaderValidation, originValidation } from '@modelcontextprotocol/express';
 import type { McpServer } from '@modelcontextprotocol/server';
+import { join } from 'node:path';
 import type { AgentService } from '../agent/service.js';
 import type { Config } from '../config.js';
+import type { CareActions } from '../domain/actions.js';
 import type { Logger } from '../log.js';
+import { packageRoot } from '../paths.js';
 import { APP_VERSION } from '../version.js';
 import { mountAgentRoutes } from './agentRoutes.js';
+import { mountDashboardRoutes } from './dashboardRoutes.js';
+import { mountDemoRoutes } from './demoRoutes.js';
 import { mountMcpRoutes, type McpRoutes } from './mcpRoutes.js';
+import { mountStatic } from './static.js';
 
 export interface AppDeps {
   config: Config;
@@ -15,6 +21,10 @@ export interface AppDeps {
   serverFactory: () => McpServer;
   /** The simulated-Alexa+ brain behind POST /api/agent; omitted = MCP server only. */
   agent?: AgentService;
+  /** Enables the REST routes for the web app's caregiver pane and the demo controls. */
+  actions?: CareActions;
+  /** Directory of the built web app; defaults to dist/web. */
+  webDir?: string;
 }
 
 export interface CareCompanionApp {
@@ -61,6 +71,10 @@ export function createApp(deps: AppDeps): CareCompanionApp {
 
   const mcp = mountMcpRoutes(app, { log, serverFactory: deps.serverFactory });
   if (deps.agent) mountAgentRoutes(app, deps.agent, log, config.agentRatePerMin);
+  if (deps.actions) {
+    mountDashboardRoutes(app, deps.actions, log);
+    mountDemoRoutes(app, deps.actions, config, log);
+  }
 
   app.get('/healthz', (_req, res) => {
     res.json({
@@ -69,8 +83,12 @@ export function createApp(deps: AppDeps): CareCompanionApp {
       uptimeSec: Math.round((Date.now() - startedAt) / 1000),
       mcpSessions: mcp.sessions.size,
       agent: deps.agent ? deps.agent.status() : null,
+      demo: deps.actions ? deps.actions.demoStatus() : null,
     });
   });
+
+  // Last: the built web app (if present) with its SPA fallback.
+  mountStatic(app, deps.webDir ?? join(packageRoot, 'dist', 'web'), log);
 
   return { app, mcp, close: () => mcp.close() };
 }

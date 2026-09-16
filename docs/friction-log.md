@@ -72,6 +72,14 @@ Running log of friction hit while building CareCompanion for the Alexa+ track, k
 - **Workaround:** The app treats `ResourceNotFoundException` as "Bedrock unusable", pauses Bedrock for five minutes and answers with the rule-based brain, so the demo keeps working (`src/agent/service.ts`); the exact console step is documented in the README.
 - **Suggestion:** Use a dedicated error (`ModelAccessNotEnabledException`) with a console deep link, align the wording between the availability API and the runtime error, and state the propagation delay in the console after the form is submitted.
 
+## FL-10 · Tailwind resolves `content` globs against the process directory, so a multi-project repo silently gets no utilities
+
+- **Date:** 2026-09-17 · **Tool:** Tailwind CSS 3.4 (PostCSS plugin) · **Severity:** low (general ecosystem)
+- **Task:** Build the web app from the repo root (`vite build --config web/vite.config.ts`) with `web/tailwind.config.js`.
+- **Steps:** Passing the config path to the PostCSS plugin fixed the "content option is missing" warning, but the globs (`./src/**/*.tsx`) were still resolved against the repo root — Tailwind scanned the _server_ sources and emitted almost no utilities. The page rendered unstyled with no error anywhere.
+- **Workaround:** `content: { relative: true, files: [...] }`.
+- **Suggestion:** Resolve relative globs against the config file by default (or warn when a glob matches zero files).
+
 ## FL-05 · Fresh `npm install` resolves TypeScript 6 / ESLint 10, which `typescript-eslint` 8 does not support
 
 - **Date:** 2026-09-16 · **Tool:** general TypeScript toolchain · **Severity:** low (general ecosystem)

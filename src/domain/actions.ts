@@ -37,6 +37,7 @@ import type { Store } from './store.js';
 import { runSweeps } from './sweeps.js';
 import {
   addDays,
+  parseClockTime,
   spokenClockTime,
   spokenDateTime,
   spokenDay,
@@ -65,6 +66,16 @@ export type CallForHelpResult = Spoken<z.infer<typeof CallForHelpOutput>>;
 export type AddMedicationResult = Spoken<z.infer<typeof AddMedicationOutput>>;
 export type ResolveAlertResult = Spoken<z.infer<typeof ResolveAlertOutput>>;
 export type CaregiverSummaryResult = Spoken<DashboardData>;
+
+export interface DemoStatus {
+  scenario: string;
+  seededAt: string | null;
+  clockOffsetMin: number;
+  now: string;
+  today: string;
+  localTime: string;
+  timezone: string;
+}
 
 interface ElderContext {
   elder: Elder;
@@ -472,7 +483,9 @@ export class CareActions {
     });
     if (alert) simulateNotify(alert, ctx.caregivers, this.log);
 
-    const parts = [`Added ${name} ${medication.dose} at ${joinSpoken(scheduleTimes.map(spokenClockTime))}.`];
+    const parts = [
+      endSentence(`Added ${name} ${medication.dose} at ${joinSpoken(scheduleTimes.map(spokenClockTime))}`),
+    ];
     if (worst) {
       parts.push(
         `Heads-up, informational only: it's listed as a ${worst.severity} ${worst.kind === 'allergy' ? 'allergy concern' : 'interaction'} with ${worst.withName} — ${worst.summary} ${worst.advice}`
@@ -601,10 +614,8 @@ export class CareActions {
       const top = open[0]!;
       parts.push(
         open.length === 1
-          ? endSentence(`One alert is open: ${lowerFirst(top.title)}, ${top.createdWhen}`)
-          : endSentence(
-              `${open.length} alerts are open; the most urgent is ${lowerFirst(top.title)}, ${top.createdWhen}`
-            )
+          ? endSentence(`One alert is open: ${top.title}, ${top.createdWhen}`)
+          : endSentence(`${open.length} alerts are open; the most urgent: ${top.title}, ${top.createdWhen}`)
       );
     } else parts.push('No alerts are open.');
     if (latest && latest.localDate === ctx.today) parts.push(`Today ${name} said they feel ${latest.mood}.`);
@@ -638,8 +649,8 @@ export class CareActions {
     const by = (id: string | undefined) => (id ? (state.caregivers.find((c) => c.id === id)?.name ?? id) : null);
     const spoken = changed
       ? input.action === 'resolve'
-        ? `Resolved: ${lowerFirst(alert.title)}${input.resolution ? ` — ${input.resolution}` : ''}.`
-        : `Acknowledged: ${lowerFirst(alert.title)}.`
+        ? `Resolved: ${alert.title}${input.resolution ? ` — ${input.resolution}` : ''}.`
+        : `Acknowledged: ${alert.title}.`
       : `That alert was already ${alert.resolvedAt ? 'resolved' : 'acknowledged'}${alert.resolvedBy ? ` by ${by(alert.resolvedBy)}` : alert.acknowledgedBy ? ` by ${by(alert.acknowledgedBy)}` : ''}.`;
     return {
       alert: {
@@ -685,6 +696,46 @@ export class CareActions {
         '7': computeAdherence(state, ctx.elder.id, 7, now, ctx.tz),
         '30': computeAdherence(state, ctx.elder.id, 30, now, ctx.tz),
       },
+    };
+  }
+
+  /**
+   * Demo control: optionally shift "now" (by minutes, or to a target wall-clock time in the household timezone),
+   * then re-seed a scenario at that moment.
+   */
+  resetDemo(input: {
+    scenario?: SeedScenario;
+    clockOffsetMin?: number;
+    targetLocalTime?: string;
+    tz?: string;
+  }): DemoStatus {
+    const tz = input.tz ?? this.store.get().households[0]?.timezone ?? 'America/Los_Angeles';
+    if (input.targetLocalTime !== undefined) {
+      const wall = wallClock(this.store.baseNow(), tz);
+      const target = parseClockTime(input.targetLocalTime);
+      let offset = target.hour * 60 + target.minute - (wall.hour * 60 + wall.minute);
+      if (offset > 720) offset -= 1440;
+      if (offset < -720) offset += 1440;
+      this.store.setClockOffsetMin(offset);
+    } else if (input.clockOffsetMin !== undefined) {
+      this.store.setClockOffsetMin(input.clockOffsetMin);
+    }
+    this.reset(input.scenario ?? 'default', tz);
+    return this.demoStatus();
+  }
+
+  demoStatus(): DemoStatus {
+    const state = this.store.get();
+    const tz = state.households[0]?.timezone ?? 'UTC';
+    const now = this.store.now();
+    return {
+      scenario: state.scenario ?? 'default',
+      seededAt: state.seededAt ?? null,
+      clockOffsetMin: this.store.getClockOffsetMin(),
+      now: now.toISOString(),
+      today: toLocalDate(now, tz),
+      localTime: toClockTime(now, tz),
+      timezone: tz,
     };
   }
 
@@ -786,10 +837,6 @@ export function joinSpoken(items: string[]): string {
 /** Adds a full stop unless the text already ends with punctuation (spoken times end in "a.m."/"p.m."). */
 function endSentence(s: string): string {
   return /[.!?]$/.test(s) ? s : `${s}.`;
-}
-
-function lowerFirst(s: string): string {
-  return s.length > 0 ? s[0]!.toLowerCase() + s.slice(1) : s;
 }
 
 function titleCase(s: string): string {
