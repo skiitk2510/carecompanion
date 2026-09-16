@@ -12,13 +12,13 @@ Built for the [Build, Ship, Shape: Amazon Developer Hackathon](https://amazonapp
 
 ## What ships
 
-| Piece                                   | Where                              | What it is                                                                                                                                   |
-| --------------------------------------- | ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| **MCP server** (Streamable HTTP + stdio) | `src/`                             | 8 tools · 1 resource · 1 prompt on `POST\|GET\|DELETE /mcp` (spec 2025-11-25, sessionful), plus a `carecompanion-mcp` stdio binary.          |
-| **Guardrails**                          | `src/domain/guardrails/`           | Duplicate/too-soon dose guard with explicit confirmation; informational interaction + allergy warnings; fail-safe symptom escalation.        |
-| **Dashboard MCP App**                   | `ui/` → `ui://carecompanion/dashboard.html` | The family dashboard rendered inline by MCP App hosts (Alexa+, MCP Inspector, basic-host) from the `caregiver_summary` tool.          |
-| **Agent Skill**                         | `skills/carecompanion/SKILL.md`    | Teaches any agent the five safe workflows against the server (validated with `skills-ref`).                                                  |
-| **Simulated Alexa+ experience**         | `web/` + `src/agent/`              | An Echo-Show-style web app with browser voice; its brain is Amazon Bedrock (Claude Haiku 4.5) calling the MCP tools through a real MCP client. |
+| Piece                                    | Where                                       | What it is                                                                                                                                     |
+| ---------------------------------------- | ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| **MCP server** (Streamable HTTP + stdio) | `src/`                                      | 8 tools · 1 resource · 1 prompt on `POST\|GET\|DELETE /mcp` (spec 2025-11-25, sessionful), plus a `carecompanion-mcp` stdio binary.            |
+| **Guardrails**                           | `src/domain/guardrails/`                    | Duplicate/too-soon dose guard with explicit confirmation; informational interaction + allergy warnings; fail-safe symptom escalation.          |
+| **Dashboard MCP App**                    | `ui/` → `ui://carecompanion/dashboard.html` | The family dashboard rendered inline by MCP App hosts (Alexa+, MCP Inspector, basic-host) from the `caregiver_summary` tool.                   |
+| **Agent Skill**                          | `skills/carecompanion/SKILL.md`             | Teaches any agent the five safe workflows against the server (validated with `skills-ref`).                                                    |
+| **Simulated Alexa+ experience**          | `web/` + `src/agent/`                       | An Echo-Show-style web app with browser voice; its brain is Amazon Bedrock (Claude Haiku 4.5) calling the MCP tools through a real MCP client. |
 
 ## Quickstart
 
@@ -42,8 +42,9 @@ npm run agent:smoke    # the five demo beats through POST /api/agent (prints whi
 npm test               # 160+ tests: guardrails, seed, MCP tools over the SDK client, agent loop, REST routes
 ```
 
-Local MCP hosts can use stdio instead: `node dist/server/bin/stdio.js` (the repo's `.mcp.json` points Claude Code at
-the HTTP endpoint).
+Local MCP hosts can use stdio instead: `node dist/server/bin/stdio.js`. Opening the repository in Claude Code gives
+you both the server (`.mcp.json`) and the Agent Skill (`.claude/skills/carecompanion`) — ask for "Margaret's morning
+briefing" and watch the tools run; [docs/skill-walkthrough.md](docs/skill-walkthrough.md) has the full script.
 
 Copy `.env.example` to `.env` to change the household timezone, seed behaviour, Bedrock settings or the demo
 token; every variable is documented there.
@@ -54,16 +55,16 @@ Every tool returns text written to be spoken aloud (`content[0].text`) **and** t
 arguments never reach a handler; every handler is pure in-memory work (a few milliseconds — no LLM runs inside the
 server, as a voice host expects).
 
-| Tool                | Who       | Purpose                                                                                                                                             |
-| ------------------- | --------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `get_todays_plan`   | elder     | Today's doses, what is next, anything missed, appointments, whether the elder has checked in.                                                      |
+| Tool                | Who       | Purpose                                                                                                                                                                     |
+| ------------------- | --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `get_todays_plan`   | elder     | Today's doses, what is next, anything missed, appointments, whether the elder has checked in.                                                                               |
 | `log_dose`          | elder     | Record a dose by whatever the elder calls it. The guard **refuses** duplicates/too-soon doses with `requiresConfirmation`; overrides need a reason and alert the caregiver. |
-| `skip_dose`         | elder     | Record a deliberate skip of the next due dose; critical medications alert the caregiver.                                                            |
-| `daily_checkin`     | elder     | Mood + symptoms in the elder's words; escalation bands (watch / urgent / emergency) notify caregivers and return `emergencyGuidance` to speak first. |
-| `call_for_help`     | elder     | Alert every caregiver at once; return emergency guidance.                                                                                           |
-| `add_medication`    | caregiver | Always adds; returns interaction/allergy `warnings` with a disclaimer (informational, never medical advice).                                        |
-| `caregiver_summary` | caregiver | Adherence (7/30 d), today's doses, open alerts, check-in trend, appointments — **the MCP App tool** (`_meta.ui.resourceUri`).                       |
-| `resolve_alert`     | caregiver | Acknowledge / resolve with a note; idempotent audit trail.                                                                                          |
+| `skip_dose`         | elder     | Record a deliberate skip of the next due dose; critical medications alert the caregiver.                                                                                    |
+| `daily_checkin`     | elder     | Mood + symptoms in the elder's words; escalation bands (watch / urgent / emergency) notify caregivers and return `emergencyGuidance` to speak first.                        |
+| `call_for_help`     | elder     | Alert every caregiver at once; return emergency guidance.                                                                                                                   |
+| `add_medication`    | caregiver | Always adds; returns interaction/allergy `warnings` with a disclaimer (informational, never medical advice).                                                                |
+| `caregiver_summary` | caregiver | Adherence (7/30 d), today's doses, open alerts, check-in trend, appointments — **the MCP App tool** (`_meta.ui.resourceUri`).                                               |
+| `resolve_alert`     | caregiver | Acknowledge / resolve with a note; idempotent audit trail.                                                                                                                  |
 
 Resource `carecompanion://elder/{elderId}/adherence` (JSON, listed per elder) · Prompt `morning_briefing`.
 Argument details: [skills/carecompanion/references/tools.md](skills/carecompanion/references/tools.md).
@@ -186,8 +187,8 @@ validation is applied to `/mcp` only, so platform health checks on `/healthz` ke
 - [x] M1 domain, guardrails, seeded household (145 tests)
 - [x] M2 MCP surface: 8 tools · 1 resource · 1 prompt, MCP App registration
 - [x] M3 Bedrock Converse brain over a loopback MCP client, rule-brain fallback, `/api/agent`
-- [ ] M4 simulated Alexa+ web app with browser voice
-- [ ] M5 dashboard MCP App view verified in basic-host and MCP Inspector
+- [x] M4 simulated Alexa+ web app with browser voice
+- [x] M5 dashboard MCP App view verified in basic-host (initialized, tool result delivered, auto-resize)
 - [ ] M6 Agent Skill walk-through, docs, product feedback
 - [ ] M7 live deployment · M8 video · M9 submission
 

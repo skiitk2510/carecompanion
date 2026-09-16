@@ -8,3 +8,6 @@ coverage/
 data/*.json
 *.log
 .DS_Store
+# Claude Code writes local settings here; only the project skill link is versioned.
+.claude/*
+!.claude/skills/

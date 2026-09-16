@@ -24,21 +24,21 @@ simulated Alexa+ web experience for the demo.
 
 Elder-facing tools (voice-first, every result is written to be spoken):
 
-| Tool              | What it does                                                                                                                |
-| ----------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| `get_todays_plan` | Today's doses, what is next, anything missed, appointments, and whether the elder has checked in.                          |
+| Tool              | What it does                                                                                                                                                                                                           |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `get_todays_plan` | Today's doses, what is next, anything missed, appointments, and whether the elder has checked in.                                                                                                                      |
 | `log_dose`        | Records a dose by whatever the elder calls it ("my blood pressure pill"). A **duplicate/too-soon guard** refuses and asks for explicit confirmation and a reason; overrides are recorded and the caregiver is alerted. |
-| `skip_dose`       | Records a deliberate skip; critical medications alert the caregiver.                                                        |
-| `daily_checkin`   | Mood and symptoms in the elder's own words; **symptom escalation** notifies caregivers for urgent symptoms and returns emergency guidance the agent must speak first. |
-| `call_for_help`   | Alerts every caregiver at once and returns emergency guidance.                                                              |
+| `skip_dose`       | Records a deliberate skip; critical medications alert the caregiver.                                                                                                                                                   |
+| `daily_checkin`   | Mood and symptoms in the elder's own words; **symptom escalation** notifies caregivers for urgent symptoms and returns emergency guidance the agent must speak first.                                                  |
+| `call_for_help`   | Alerts every caregiver at once and returns emergency guidance.                                                                                                                                                         |
 
 Caregiver-facing tools:
 
-| Tool                | What it does                                                                                                                |
-| ------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| `add_medication`    | Always adds; returns **informational interaction and allergy warnings** against the current list, with a disclaimer.       |
+| Tool                | What it does                                                                                                                                                                        |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `add_medication`    | Always adds; returns **informational interaction and allergy warnings** against the current list, with a disclaimer.                                                                |
 | `caregiver_summary` | Weekly adherence, today's doses, open alerts, the check-in trend, appointments — and the **family dashboard as an MCP App** rendered inline by hosts that support it (Alexa+ does). |
-| `resolve_alert`     | Acknowledge or resolve with a note: an audit trail the family can trust.                                                    |
+| `resolve_alert`     | Acknowledge or resolve with a note: an audit trail the family can trust.                                                                                                            |
 
 Plus a resource (`carecompanion://elder/{elderId}/adherence`) and a prompt (`morning_briefing`).
 

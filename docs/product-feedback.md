@@ -24,10 +24,13 @@ to [friction-log.md](friction-log.md).
   dozen lines; `useApp` gives a React view the host bridge with typed handlers (`ontoolinput`, `ontoolresult`,
   `onteardown`), and `callServerTool` lets the view act through the same tools the model uses — no second API.
   `useHostStyles` made the dashboard adopt the host theme without a design system.
-- **Needs work:** which _plain_ tools a view may call through `callServerTool` (visibility defaults for tools
-  without `_meta.ui`) is not stated; we could only verify host by host. The single-file build recipe (Vite +
-  `vite-plugin-singlefile`) is folklore rather than a template.
-- **Onboarding:** one evening including the build pipeline.
+- **Needs work:** which _plain_ tools a view may call through `callServerTool` is not documented — we had to read
+  `AppBridge.connect()` to learn that hosts forward any `tools/call` unfiltered and that `visibility` only affects
+  tool-list display. The single-file build recipe (Vite + `vite-plugin-singlefile`) is folklore rather than a
+  template. A hidden/zero-width host tab makes `size-changed` report absurd heights (19,000 px) — hosts should
+  clamp, or the SDK could skip resize notifications while the view has no layout width.
+- **Onboarding:** one evening including the build pipeline; verified in `basic-host` (initialize → tool-input →
+  tool-result → size-changed) the same night.
 - **Would build on it again:** yes — it is the right abstraction for a voice-first host with a screen.
 
 ## MCP Inspector (V2, CLI + UI)
@@ -50,9 +53,16 @@ to [friction-log.md](friction-log.md).
 - **Would build on it again:** yes, with the rule-based fallback we shipped — a demo must not depend on an
   account-level switch.
 
-## Agent Skills (`SKILL.md`, agentskills.io)
+## Agent Skills (`SKILL.md`, agentskills.io) and `skills-ref`
 
-- _To be completed after the skill has driven the hosted server end to end (M6)._
+- **What worked:** the format is small enough to write by hand in an hour, `skills-ref validate` caught nothing
+  because the rules are clear (name = directory, description length, no stray `version` key), and a project-level
+  `.claude/skills/` link makes the skill available the moment the repository is opened in Claude Code.
+- **Needs work:** there is no way to declare the MCP server a skill depends on in the frontmatter; the body has
+  to explain connection details in prose. A `mcpServers` hint (or a pointer to an `.mcp.json`) would let hosts
+  offer to connect automatically.
+- **Onboarding:** an hour, most of it deciding what belongs in `references/`.
+- **Would build on it again:** yes; see `docs/skill-walkthrough.md` for the reproducible run.
 
 ## Web Speech API (Chrome)
 
