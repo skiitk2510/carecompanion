@@ -1,0 +1,32 @@
+# Render Blueprint — mirrors the dashboard settings for the free web service.
+# Node version comes from .node-version (24). Secrets are set in the dashboard (sync: false).
+services:
+  - type: web
+    name: carecompanion
+    runtime: node
+    plan: free
+    buildCommand: npm ci --include=dev && npm run build
+    startCommand: npm start
+    healthCheckPath: /healthz
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: SEED_ON_BOOT
+        value: always
+      - key: HOUSEHOLD_TZ
+        value: America/Los_Angeles
+      - key: CORS_ORIGINS
+        value: '*'
+      - key: BEDROCK_REGION
+        value: us-east-1
+      - key: BEDROCK_MODEL_ID
+        value: us.anthropic.claude-haiku-4-5-20251001-v1:0
+      - key: AGENT_BRAIN
+        value: bedrock
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false
+      - key: DEMO_RESET_TOKEN
+        generateValue: true

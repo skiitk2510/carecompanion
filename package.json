@@ -1,0 +1,78 @@
+{
+  "name": "carecompanion",
+  "version": "0.1.0",
+  "description": "Eldercare-coordination agent for Alexa+: an MCP server with medication guardrails, daily check-ins, caregiver alerts, and a family dashboard MCP App.",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "author": "Saurabh Kumar",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/skiitk2510/carecompanion.git"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "alexa",
+    "eldercare",
+    "bedrock",
+    "mcp-apps",
+    "agent-skill"
+  ],
+  "engines": {
+    "node": ">=22.19 <26"
+  },
+  "bin": {
+    "carecompanion-mcp": "dist/server/bin/stdio.js"
+  },
+  "scripts": {
+    "dev": "tsx watch src/main.ts",
+    "build": "npm run build:server",
+    "build:server": "tsc -p tsconfig.server.json",
+    "start": "node dist/server/main.js",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run --passWithNoTests",
+    "test:watch": "vitest",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "mcp:stdio": "node dist/server/bin/stdio.js",
+    "mcp:inspect": "npx @modelcontextprotocol/inspector --server-url http://127.0.0.1:3000/mcp --transport http",
+    "mcp:lifecycle": "bash scripts/mcp-lifecycle.sh"
+  },
+  "dependencies": {
+    "@aws-sdk/client-bedrock-runtime": "^3.1133.0",
+    "@modelcontextprotocol/client": "^2.0.0",
+    "@modelcontextprotocol/express": "^2.0.0",
+    "@modelcontextprotocol/ext-apps": "^2.0.0",
+    "@modelcontextprotocol/node": "^2.0.0",
+    "@modelcontextprotocol/server": "^2.0.0",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "^24.13.5",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^4.7.0",
+    "autoprefixer": "^10.6.1",
+    "concurrently": "^10.0.5",
+    "eslint": "^9.39.5",
+    "globals": "^17.12.0",
+    "postcss": "^8.5.28",
+    "prettier": "^3.9.7",
+    "tailwindcss": "^3.4.19",
+    "tsx": "^4.23.13",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.70.0",
+    "vite": "^6.4.3",
+    "vite-plugin-singlefile": "^2.3.3",
+    "vitest": "^4.1.11"
+  }
+}
