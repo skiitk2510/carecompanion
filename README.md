@@ -51,9 +51,10 @@ token; every variable is documented there.
 
 ## The MCP surface
 
-Every tool returns text written to be spoken aloud (`content[0].text`) **and** typed `structuredContent`; invalid
-arguments never reach a handler; every handler is pure in-memory work (a few milliseconds — no LLM runs inside the
-server, as a voice host expects).
+Every tool returns text written to be spoken aloud (`content[0].text`) **and** typed `structuredContent` — hosts
+that compose their own reply (Alexa+ does) get clean data; hosts that read text get a sentence that already works.
+Invalid arguments never reach a handler; every handler is pure in-memory work (a few milliseconds — no LLM runs
+inside the server, as a voice host expects).
 
 | Tool                | Who       | Purpose                                                                                                                                                                     |
 | ------------------- | --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -134,6 +135,26 @@ the alert and logged — no SMS/email is sent), and the household itself (synthe
 
 The first request after ~15 minutes idle on the free hosting tier takes up to a minute (cold start); the app is
 otherwise stateless per session, so MCP clients simply re-initialize after a restart (`404 / -32001`).
+
+## Onboarding to Alexa+ (optional)
+
+The server meets the [Alexa+ MCP Toolkit](https://developer.amazon.com/docs/alexaplus/add-ons/mcp-toolkit-quickstart.html)
+requirements as documented: Streamable HTTP, MCP 2025-11-25, a remote URL, tools well inside the 500 ms round-trip
+budget, and visuals via MCP Apps. With a US developer account the deployed URL can be registered as a dev-stage
+add-on and tried in Amazon's web simulator:
+
+```bash
+alexa-ai configure                                   # Login with Amazon (browser)
+alexa-ai new mcp --name "CareCompanion" --locale en-US --mcp-server-url "https://<your-host>/mcp"
+alexa-ai deploy                                      # development stage → Add-on ID → web simulator
+```
+
+Amazon's **Local Inspector** (`addon-local-inspector https://<your-host>/mcp`, distributed through the Developer
+Console) renders the `caregiver_summary` MCP App in Small (≤10") and Large (≥11") device frames and writes a
+certification verdict; the view was built for exactly those breakpoints.
+
+The demo deployment is unauthenticated on purpose (synthetic household, no PHI); an account-linked add-on would mount
+the SDK's OAuth middleware in front of `/mcp`.
 
 ## Safety & scope
 

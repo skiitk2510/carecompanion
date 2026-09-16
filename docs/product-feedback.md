@@ -72,6 +72,32 @@ to [friction-log.md](friction-log.md).
 
 - _To be completed after deployment (M7)._
 
-## Alexa+ developer surface
+## Alexa+ MCP Toolkit — documentation experience
 
-- _To be completed: the local inspector run and the documentation experience (M6)._
+_Written from the public documentation (QuickStart + Overview); we could not exercise the `alexa-ai` CLI itself
+because the toolkit is documented as available in the United States only._
+
+- **What worked:** the requirements that matter to a server author are stated plainly and match the open standard:
+  Streamable HTTP, MCP 2025-11-25, a remote URL (cloudflared is suggested for local development), a
+  **500 ms round-trip latency budget**, and MCP Apps for visuals with "dashboards" named as a use case — every one of
+  those shaped this project (in-memory tools answer in ~10 ms; the dashboard is an MCP App). The CLI flow
+  (`configure` → `new mcp --mcp-server-url` → `deploy` → web simulator → `submit`) is short and readable, and an
+  Add-on Agent Skill for coding agents is a great idea.
+- **Needs work:** (1) the QuickStart's authentication checklist reads as mandatory (401 without `WWW-Authenticate`,
+  PRM document) but never says whether an add-on **without** account linking may talk to an unauthenticated server —
+  the single most common question for a hackathon or internal-tool server; (2) the US-only availability is stated in
+  the Overview, not on the QuickStart or the hackathon pages, so international entrants discover it late; (3) the
+  Add-on Agent Skill has no install command or repository link on the page that introduces it; (4) there is no
+  guidance on tool naming/descriptions for the Alexa+ model, nor on how tool `structuredContent` vs spoken text is
+  used — the Design Guide's one sentence on the subject ("You can't script what Alexa says, but you can design your
+  data so Alexa's responses are rich, accurate, and useful") deserves a whole section with examples; (5) the
+  **Local Inspector** (`@alexa-ai/addon-local-inspector`: device frames at ≤10" and ≥11", a certification verdict
+  JSON) is exactly what a server author needs, but it is not on npm — it is distributed through the Developer
+  Console's Getting Started guide, so anyone who cannot open the console (international entrants, CI) cannot run
+  the readiness report, and its prerequisites (Node 24+, a Playwright CLI) are not mentioned on the QuickStart;
+  (6) the Client and App Lifecycle page's example handshake uses `protocolVersion: "2025-03-26"` while the Overview
+  says 2025-11-25 — server authors need to know which the client actually sends (we verified our server negotiates
+  both); (7) the Authentication page documents Tier-1 client-credentials mechanics well but never says whether an
+  add-on without account linking may use an unauthenticated server.
+- **Would build on it again:** yes — the toolkit's constraints are the right ones for voice; we would gladly onboard
+  the finished server through `alexa-ai` the day the toolkit opens outside the US.

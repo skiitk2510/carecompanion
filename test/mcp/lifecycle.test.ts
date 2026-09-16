@@ -98,6 +98,45 @@ describe('Streamable HTTP session lifecycle (spec 2025-11-25, sessionful)', () =
     await waitFor(() => !srv.app.mcp.sessions.has(sessionId!));
   });
 
+  it('negotiates the protocol versions Alexa+ documents (2025-03-26 example handshake) and 2025-11-25', async () => {
+    for (const version of ['2025-03-26', '2025-06-18', '2025-11-25']) {
+      const init = await fetch(`${srv.baseUrl}/mcp`, {
+        method: 'POST',
+        headers: JSON_HEADERS,
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 1,
+          method: 'initialize',
+          params: {
+            protocolVersion: version,
+            capabilities: { roots: { listChanged: true } },
+            clientInfo: { name: 'Alexa+ MCP Client', version: '1.0.0' },
+          },
+        }),
+      });
+      expect(init.status).toBe(200);
+      const sessionId = init.headers.get('mcp-session-id')!;
+      const negotiated = ((await init.json()) as { result: { protocolVersion: string } }).result.protocolVersion;
+      expect(negotiated).toBe(version);
+
+      const list = await fetch(`${srv.baseUrl}/mcp`, {
+        method: 'POST',
+        headers: { ...JSON_HEADERS, 'mcp-session-id': sessionId, 'mcp-protocol-version': version },
+        body: JSON.stringify({ jsonrpc: '2.0', id: 2, method: 'tools/list' }),
+      });
+      expect(list.status).toBe(200);
+      const tools = (
+        (await list.json()) as { result: { tools: Array<{ name: string; _meta?: Record<string, unknown> }> } }
+      ).result.tools;
+      const summary = tools.find((t) => t.name === 'caregiver_summary')!;
+      // Alexa+ renders visuals "as long as you have resourceUri defined" — both the nested and legacy keys are present.
+      expect((summary._meta?.ui as { resourceUri: string }).resourceUri).toBe('ui://carecompanion/dashboard.html');
+      expect(summary._meta?.['ui/resourceUri']).toBe('ui://carecompanion/dashboard.html');
+
+      await fetch(`${srv.baseUrl}/mcp`, { method: 'DELETE', headers: { 'mcp-session-id': sessionId } });
+    }
+  });
+
   it('rejects a foreign Host header on /mcp (DNS-rebinding guard) but keeps /healthz open', async () => {
     // fetch() silently drops a custom Host header, so this one goes through node:http.
     const forbidden = await rawRequest(`${srv.baseUrl}/mcp`, {
