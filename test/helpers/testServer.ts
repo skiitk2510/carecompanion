@@ -1,21 +1,49 @@
 import { request, type IncomingHttpHeaders, type Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { loadConfig } from '../../src/config.js';
+import { CareActions } from '../../src/domain/actions.js';
+import { createStore } from '../../src/domain/bootstrap.js';
+import type { SeedScenario } from '../../src/domain/seed.js';
+import type { Store } from '../../src/domain/store.js';
+import { fixedClock, type Clock } from '../../src/domain/time.js';
 import { createApp, type CareCompanionApp } from '../../src/http/app.js';
 import { silentLogger } from '../../src/log.js';
 import { buildServer } from '../../src/mcp/server.js';
 
 export interface TestServer {
   app: CareCompanionApp;
+  store: Store;
+  actions: CareActions;
   baseUrl: string;
   close(): Promise<void>;
 }
 
+/** 10:30 in America/Los_Angeles on 2026-09-16 — the seed's "mid-morning" moment. */
+export const TEST_NOW = '2026-09-16T17:30:00.000Z';
+
+export interface TestServerOptions {
+  env?: NodeJS.ProcessEnv;
+  clock?: Clock;
+  scenario?: SeedScenario;
+}
+
 /** Boots the real Express wiring (CORS, host validation, MCP routes) on an ephemeral 127.0.0.1 port. */
-export async function startTestServer(env: NodeJS.ProcessEnv = {}): Promise<TestServer> {
-  const config = loadConfig({ ...env, PORT: '0', HOST: '127.0.0.1' });
+export async function startTestServer(opts: TestServerOptions = {}): Promise<TestServer> {
+  const config = loadConfig({
+    HOUSEHOLD_TZ: 'America/Los_Angeles',
+    SEED_ON_BOOT: 'always',
+    DATA_FILE: '',
+    ...opts.env,
+    PORT: '0',
+    HOST: '127.0.0.1',
+  });
   const log = silentLogger;
-  const app = createApp({ config, log, serverFactory: () => buildServer({ log }) });
+  const store = createStore(config, log, {
+    clock: opts.clock ?? fixedClock(TEST_NOW),
+    scenario: opts.scenario ?? 'mid-morning',
+  });
+  const actions = new CareActions({ store, log });
+  const app = createApp({ config, log, serverFactory: () => buildServer({ log, actions }) });
 
   const server = await new Promise<Server>((resolve) => {
     const s = app.app.listen(0, '127.0.0.1', () => resolve(s));
@@ -24,6 +52,8 @@ export async function startTestServer(env: NodeJS.ProcessEnv = {}): Promise<Test
 
   return {
     app,
+    store,
+    actions,
     baseUrl: `http://127.0.0.1:${port}`,
     close: async () => {
       await app.close();

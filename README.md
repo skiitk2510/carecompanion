@@ -4,7 +4,7 @@ An eldercare-coordination agent for Alexa+: medication reminders with safety gua
 
 Built for the [Build, Ship, Shape: Amazon Developer Hackathon](https://amazonappdev2026.devpost.com/) (Alexa+ track · AWS Builder mini · Open Source mini).
 
-> **Status:** early scaffold — walking skeleton in progress. Full README (quickstart, architecture, demo, safety scope) lands with the first milestone.
+> **Status:** the MCP surface is complete — 8 tools · 1 resource · 1 prompt, with the three safety guardrails (duplicate-dose guard with human confirmation, informational interaction/allergy warnings, fail-safe symptom escalation) and a seeded demo household, covered by 145 tests. Next: the Bedrock-powered simulated Alexa+ experience, the web app and the dashboard MCP App view.
 
 ## What ships
 

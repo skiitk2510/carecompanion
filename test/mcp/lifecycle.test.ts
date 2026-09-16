@@ -26,7 +26,7 @@ describe('Streamable HTTP session lifecycle (spec 2025-11-25, sessionful)', () =
     await srv.close();
   });
 
-  it('initializes a session with the SDK client, lists and calls ping, then terminates', async () => {
+  it('initializes a session with the SDK client, lists the 8 tools, calls one, then terminates', async () => {
     const transport = new StreamableHTTPClientTransport(new URL(`${srv.baseUrl}/mcp`));
     const client = new Client({ name: 'test-client', version: '0.0.0' });
     await client.connect(transport);
@@ -35,12 +35,24 @@ describe('Streamable HTTP session lifecycle (spec 2025-11-25, sessionful)', () =
     expect(srv.app.mcp.sessions.size).toBe(1);
 
     const { tools } = await client.listTools();
-    expect(tools.map((t) => t.name)).toContain('ping');
+    expect(tools.map((t) => t.name).sort()).toEqual(
+      [
+        'add_medication',
+        'call_for_help',
+        'caregiver_summary',
+        'daily_checkin',
+        'get_todays_plan',
+        'log_dose',
+        'resolve_alert',
+        'skip_dose',
+      ].sort()
+    );
 
-    const result = await client.callTool({ name: 'ping', arguments: {} });
+    const result = await client.callTool({ name: 'get_todays_plan', arguments: {} });
     const first = (result.content as Array<{ type: string; text?: string }>)[0];
     expect(first?.type).toBe('text');
-    expect(first?.text).toMatch(/^pong/);
+    expect(first?.text).toMatch(/^Good morning, Margaret\./);
+    expect((result.structuredContent as { doses: unknown[] }).doses.length).toBeGreaterThan(0);
 
     await transport.terminateSession();
     await client.close();

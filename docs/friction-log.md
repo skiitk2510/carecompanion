@@ -39,6 +39,30 @@ Running log of friction hit while building CareCompanion for the Alexa+ track, k
 - **Workaround:** A 20-line `node:http` helper (`test/helpers/testServer.ts`, `rawRequest`).
 - **Suggestion:** The SDK's own test utilities could ship a tiny raw-request helper next to the validation middlewares.
 
+## FL-06 · `outputSchema` violations surface only at runtime, without the tool name or key path
+
+- **Date:** 2026-09-16 · **Tool:** `@modelcontextprotocol/server` 2.0.0 (`registerTool` with zod `outputSchema`) · **Severity:** medium
+- **Task:** Return `structuredContent` for `get_todays_plan` whose dose objects carry a `scheduledAt` field.
+- **Steps:** The zod → JSON Schema conversion emits `additionalProperties: false`; the SDK validates `structuredContent` _after_ the handler ran and answered the client with `must NOT have additional properties`. Nothing named the tool or the offending key, and `tsc` could not catch it because the handler's return type is `Record<string, unknown>` rather than the schema's inferred type.
+- **Expectation vs reality:** Expected a compile-time mismatch (the whole point of declaring the schema in TypeScript). Reality: a generic runtime string found by an integration test.
+- **Workaround:** Declared every emitted key in the schema (`src/mcp/schemas.ts`) and kept an SDK-client test per tool so drift fails CI.
+- **Suggestion:** Type the handler's `structuredContent` as `z.infer<typeof outputSchema>` in `registerTool`, and include `tool name + instancePath` in the validation error message.
+
+## FL-07 · Hand-typed tool results don't satisfy `registerTool` (index signature), with a 30-line overload error
+
+- **Date:** 2026-09-16 · **Tool:** `@modelcontextprotocol/server` 2.0.0 / `@modelcontextprotocol/ext-apps` `registerAppTool` · **Severity:** low
+- **Steps:** Wrote a small `ToolOutcome` interface (`content`, `structuredContent`, `isError`) for a shared error-mapping helper. Both `registerTool` and `registerAppTool` rejected it: `Index signature for type 'string' is missing`, buried under two overload explanations.
+- **Workaround:** Return the SDK's exported `CallToolResult` type instead (`src/mcp/result.ts`).
+- **Suggestion:** Mention in the `registerTool` docs that helper functions should return `CallToolResult`, and consider dropping the deprecated raw-shape overload so the error points at the real cause.
+
+## FL-08 · Bedrock model access status is only discoverable through an obscure API field
+
+- **Date:** 2026-09-16 · **Tool:** Amazon Bedrock (`get-foundation-model-availability`) · **Severity:** low
+- **Task:** Find out, before spending, whether the account can invoke Claude Haiku 4.5 in us-east-1.
+- **Steps:** `list-foundation-models` lists the model regardless of access. `get-foundation-model-availability` returned `authorizationStatus: AUTHORIZED`, `entitlementAvailability: AVAILABLE`, `regionAvailability: AVAILABLE` but `agreementAvailability.status: NOT_AVAILABLE` — which reads like "not available here" when it actually means "the model-use agreement has not been accepted in the console".
+- **Workaround:** Documented the check and its meaning in the README's AWS setup notes.
+- **Suggestion:** Name the state `AGREEMENT_NOT_ACCEPTED` (with a console deep link), and surface the same status in `list-foundation-models`.
+
 ## FL-05 · Fresh `npm install` resolves TypeScript 6 / ESLint 10, which `typescript-eslint` 8 does not support
 
 - **Date:** 2026-09-16 · **Tool:** general TypeScript toolchain · **Severity:** low (general ecosystem)

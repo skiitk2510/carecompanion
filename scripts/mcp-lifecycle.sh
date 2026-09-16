@@ -32,11 +32,11 @@ echo "$RESP" | tail -1
 echo "$RESP" | head -1 | head -c 400; echo
 echo "$RESP" | tail -1 | grep -q '^200' || fail "tools/list"
 
-echo "== POST tools/call ping (expect 200)"
+echo "== POST tools/call get_todays_plan (expect 200)"
 RESP=$(curl -sS -w '\n%{http_code}' -H "$ACCEPT" -H "$CT" -H "$PV" -H "Mcp-Session-Id: $SID" -X POST "$BASE/mcp" \
-  --data '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"ping","arguments":{}}}')
+  --data '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"get_todays_plan","arguments":{}}}')
 echo "$RESP" | head -1 | head -c 300; echo
-echo "$RESP" | tail -1 | grep -q '^200' || fail "tools/call ping"
+echo "$RESP" | tail -1 | grep -q '^200' || fail "tools/call get_todays_plan"
 
 echo "== GET standalone stream (expect 200 text/event-stream, NOT 405)"
 CODE=$(curl -sS -o /dev/null -w '%{http_code} %{content_type}' --max-time 2 -H 'Accept: text/event-stream' -H "$PV" -H "Mcp-Session-Id: $SID" "$BASE/mcp" || true)

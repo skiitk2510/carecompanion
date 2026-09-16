@@ -13,7 +13,8 @@ export interface Config {
   corsOrigins: '*' | string[];
   householdTz: string;
   seedOnBoot: SeedMode;
-  dataFile: string;
+  /** JSON snapshot path (relative to the package root). Empty `DATA_FILE=` disables snapshots. */
+  dataFile: string | undefined;
   bedrockRegion: string;
   bedrockModelId: string;
   agentBrain: AgentBrain;
@@ -45,7 +46,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     corsOrigins: corsRaw.includes('*') ? '*' : corsRaw,
     householdTz: env.HOUSEHOLD_TZ ?? 'America/Los_Angeles',
     seedOnBoot: oneOf(env.SEED_ON_BOOT, ['always', 'if-empty', 'never'], 'if-empty'),
-    dataFile: env.DATA_FILE ?? './data/state.json',
+    dataFile: env.DATA_FILE === undefined ? './data/state.json' : env.DATA_FILE || undefined,
     // The local ~/.aws default profile is ap-south-1, where Bedrock model access is not enabled — pin explicitly.
     bedrockRegion: env.BEDROCK_REGION ?? env.AWS_REGION ?? 'us-east-1',
     bedrockModelId: env.BEDROCK_MODEL_ID ?? DEFAULT_BEDROCK_MODEL_ID,
