@@ -38,7 +38,8 @@
     "format:check": "prettier --check .",
     "mcp:stdio": "node dist/server/bin/stdio.js",
     "mcp:inspect": "npx @modelcontextprotocol/inspector --server-url http://127.0.0.1:3000/mcp --transport http",
-    "mcp:lifecycle": "bash scripts/mcp-lifecycle.sh"
+    "mcp:lifecycle": "bash scripts/mcp-lifecycle.sh",
+    "agent:smoke": "node scripts/agent-smoke.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-bedrock-runtime": "^3.1133.0",

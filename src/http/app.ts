@@ -2,15 +2,19 @@ import cors from 'cors';
 import type { Express } from 'express';
 import { createMcpExpressApp, hostHeaderValidation, originValidation } from '@modelcontextprotocol/express';
 import type { McpServer } from '@modelcontextprotocol/server';
+import type { AgentService } from '../agent/service.js';
 import type { Config } from '../config.js';
 import type { Logger } from '../log.js';
 import { APP_VERSION } from '../version.js';
+import { mountAgentRoutes } from './agentRoutes.js';
 import { mountMcpRoutes, type McpRoutes } from './mcpRoutes.js';
 
 export interface AppDeps {
   config: Config;
   log: Logger;
   serverFactory: () => McpServer;
+  /** The simulated-Alexa+ brain behind POST /api/agent; omitted = MCP server only. */
+  agent?: AgentService;
 }
 
 export interface CareCompanionApp {
@@ -26,6 +30,8 @@ export function createApp(deps: AppDeps): CareCompanionApp {
   // host '0.0.0.0' switches off the SDK's automatic (app-wide) localhost guard; we scope DNS-rebinding
   // protection to /mcp below so /healthz, /api and static assets stay reachable from Render's health checker.
   const app = createMcpExpressApp({ host: '0.0.0.0', jsonLimit: '4mb' });
+  // Render terminates TLS in front of us; trust one hop so req.ip is the client (rate limiting).
+  app.set('trust proxy', 1);
 
   // Browser-based MCP hosts (basic-host, Inspector UI, Alexa+ web surfaces) must be able to read these headers.
   app.use(
@@ -39,6 +45,7 @@ export function createApp(deps: AppDeps): CareCompanionApp {
         'Mcp-Session-Id',
         'Mcp-Protocol-Version',
         'Last-Event-Id',
+        'X-Demo-Token',
       ],
       exposedHeaders: ['Mcp-Session-Id', 'WWW-Authenticate', 'Last-Event-Id', 'Mcp-Protocol-Version'],
     })
@@ -53,6 +60,7 @@ export function createApp(deps: AppDeps): CareCompanionApp {
   }
 
   const mcp = mountMcpRoutes(app, { log, serverFactory: deps.serverFactory });
+  if (deps.agent) mountAgentRoutes(app, deps.agent, log, config.agentRatePerMin);
 
   app.get('/healthz', (_req, res) => {
     res.json({
@@ -60,6 +68,7 @@ export function createApp(deps: AppDeps): CareCompanionApp {
       version: APP_VERSION,
       uptimeSec: Math.round((Date.now() - startedAt) / 1000),
       mcpSessions: mcp.sessions.size,
+      agent: deps.agent ? deps.agent.status() : null,
     });
   });
 

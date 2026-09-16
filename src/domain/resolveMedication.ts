@@ -105,6 +105,10 @@ export function resolveMedication(query: string, medications: readonly Medicatio
     const byGeneric = active.filter((m) => normalizeName(m.genericName) === normalized);
     if (byGeneric.length > 0) return decide(byGeneric, 'generic');
 
+    // 1b. An explicit name anywhere in the phrase ("my blood pressure pill, the lisinopril") beats purpose words.
+    const byToken = active.filter((m) => namesOf(m).some((n) => tokens.includes(n)));
+    if (byToken.length > 0) return decide(byToken, 'name');
+
     // 2. Brand aliases ("coumadin" → warfarin).
     const aliased = unique(tokens.map((t) => BRAND_ALIASES[t]).filter((t): t is string => t !== undefined));
     if (aliased.length > 0) {

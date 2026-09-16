@@ -188,7 +188,7 @@ export function spokenDay(localDate: LocalDate, today: LocalDate, tz: string): s
   return `${MONTHS[d.month - 1]} ${d.day}`;
 }
 
-/** A human-friendly relative stamp for the dashboard, e.g. "today 8:05 a.m." or "yesterday 6:10 p.m.". */
+/** A human-friendly relative stamp, e.g. "today at 8:05 a.m." or "yesterday at 6:10 p.m.". */
 export function spokenDateTime(instant: Date | IsoDateTime, tz: string, today: LocalDate): string {
-  return `${spokenDay(toLocalDate(instant, tz), today, tz)} ${spokenTime(instant, tz)}`;
+  return `${spokenDay(toLocalDate(instant, tz), today, tz)} at ${spokenTime(instant, tz)}`;
 }

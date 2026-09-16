@@ -145,11 +145,13 @@ export class CareActions {
         `You have ${doses.length} ${doses.length === 1 ? 'dose' : 'doses'} today` +
           (taken.length > 0 ? `, and you've taken ${taken.length} so far.` : '.')
       );
-      if (next) parts.push(`Next up is ${next.medication.name} at ${spokenClockTime(next.scheduledTime)}.`);
-      if (missed.length > 0) parts.push(`You missed ${joinSpoken(missed.map((d) => `${d.name} at ${d.spokenTime}`))}.`);
+      if (next) parts.push(endSentence(`Next up is ${next.medication.name} at ${spokenClockTime(next.scheduledTime)}`));
+      if (missed.length > 0) {
+        parts.push(endSentence(`You missed ${joinSpoken(missed.map((d) => `${d.name} at ${d.spokenTime}`))}`));
+      }
     }
     const soon = appointments.filter((a) => a.when.startsWith('today') || a.when.startsWith('tomorrow'));
-    for (const a of soon.slice(0, 2)) parts.push(`${a.title} is ${a.when}.`);
+    for (const a of soon.slice(0, 2)) parts.push(endSentence(`${a.title} is ${a.when}`));
     if (!checkedInToday) parts.push('How are you feeling today?');
 
     return {
@@ -599,14 +601,16 @@ export class CareActions {
       const top = open[0]!;
       parts.push(
         open.length === 1
-          ? `One alert is open: ${lowerFirst(top.title)}, ${top.createdWhen}.`
-          : `${open.length} alerts are open; the most urgent is ${lowerFirst(top.title)}, ${top.createdWhen}.`
+          ? endSentence(`One alert is open: ${lowerFirst(top.title)}, ${top.createdWhen}`)
+          : endSentence(
+              `${open.length} alerts are open; the most urgent is ${lowerFirst(top.title)}, ${top.createdWhen}`
+            )
       );
     } else parts.push('No alerts are open.');
-    if (latest && latest.localDate === ctx.today) parts.push(`Today ${name} said she feels ${latest.mood}.`);
+    if (latest && latest.localDate === ctx.today) parts.push(`Today ${name} said they feel ${latest.mood}.`);
     else if (!data.checkedInToday) parts.push(`${name} hasn't checked in yet today.`);
     const nextAppt = data.upcomingAppointments[0];
-    if (nextAppt) parts.push(`Next up: ${nextAppt.title} ${nextAppt.when}.`);
+    if (nextAppt) parts.push(endSentence(`Next up: ${nextAppt.title}, ${nextAppt.when}`));
 
     return { ...data, spoken: parts.join(' ') };
   }
@@ -654,6 +658,12 @@ export class CareActions {
 
   listElders(): Array<{ id: string; name: string }> {
     return this.store.get().elders.map((e) => ({ id: e.id, name: e.name }));
+  }
+
+  /** Who the agent is talking to/about, for the system prompt. */
+  household(elderId?: string): { elder: Elder; household: Household; caregivers: Caregiver[]; now: Date } {
+    const ctx = this.context(elderId);
+    return { elder: ctx.elder, household: ctx.household, caregivers: ctx.caregivers, now: this.store.now() };
   }
 
   /** The `carecompanion://elder/{elderId}/adherence` resource: 7- and 30-day windows side by side. */
@@ -751,7 +761,7 @@ function upcomingAppointments(state: Readonly<State>, ctx: ElderContext, horizon
         id: a.id,
         title: a.title,
         at: a.at,
-        when: `${spokenDay(toLocalDate(a.at, ctx.tz), ctx.today, ctx.tz)} ${spokenTime(a.at, ctx.tz)}`,
+        when: `${spokenDay(toLocalDate(a.at, ctx.tz), ctx.today, ctx.tz)} at ${spokenTime(a.at, ctx.tz)}`,
       };
       if (a.location) view.location = a.location;
       return view;
@@ -771,6 +781,11 @@ export function joinSpoken(items: string[]): string {
   if (items.length <= 1) return items[0] ?? '';
   if (items.length === 2) return `${items[0]} and ${items[1]}`;
   return `${items.slice(0, -1).join(', ')}, and ${items.at(-1)}`;
+}
+
+/** Adds a full stop unless the text already ends with punctuation (spoken times end in "a.m."/"p.m."). */
+function endSentence(s: string): string {
+  return /[.!?]$/.test(s) ? s : `${s}.`;
 }
 
 function lowerFirst(s: string): string {

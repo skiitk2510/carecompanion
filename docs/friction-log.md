@@ -63,6 +63,15 @@ Running log of friction hit while building CareCompanion for the Alexa+ track, k
 - **Workaround:** Documented the check and its meaning in the README's AWS setup notes.
 - **Suggestion:** Name the state `AGREEMENT_NOT_ACCEPTED` (with a console deep link), and surface the same status in `list-foundation-models`.
 
+## FL-09 · Two different names for the same Bedrock prerequisite: "agreement" vs "use case details form"
+
+- **Date:** 2026-09-16 · **Tool:** Amazon Bedrock (Converse API, Anthropic models) · **Severity:** medium
+- **Task:** First real `ConverseCommand` to `us.anthropic.claude-haiku-4-5-20251001-v1:0` in us-east-1 from a fresh account.
+- **Steps:** The availability API (FL-08) reported `agreementAvailability: NOT_AVAILABLE`. The runtime then failed with `ResourceNotFoundException: Model use case details have not been submitted for this account. Fill out the Anthropic use case details form before using the model. If you have already filled out the form, try again in 15 minutes.`
+- **Expectation vs reality:** Expected one consistent prerequisite ("enable model access") with one name and one error type. Reality: a `ResourceNotFoundException` (which usually means "wrong model id") for a missing form, a different word ("agreement") in the availability API, and a 15-minute propagation delay nobody mentions up front.
+- **Workaround:** The app treats `ResourceNotFoundException` as "Bedrock unusable", pauses Bedrock for five minutes and answers with the rule-based brain, so the demo keeps working (`src/agent/service.ts`); the exact console step is documented in the README.
+- **Suggestion:** Use a dedicated error (`ModelAccessNotEnabledException`) with a console deep link, align the wording between the availability API and the runtime error, and state the propagation delay in the console after the form is submitted.
+
 ## FL-05 · Fresh `npm install` resolves TypeScript 6 / ESLint 10, which `typescript-eslint` 8 does not support
 
 - **Date:** 2026-09-16 · **Tool:** general TypeScript toolchain · **Severity:** low (general ecosystem)

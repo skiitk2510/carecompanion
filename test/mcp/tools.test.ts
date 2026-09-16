@@ -60,7 +60,7 @@ describe('MCP tool surface (8 tools · 1 resource · 1 prompt) over the SDK clie
     expect(dashboard.nextUp?.name).toBe('Metformin');
     expect(dashboard.openAlerts.map((a) => a.type)).toContain('symptom'); // yesterday's dizziness, acknowledged, still open
     expect(dashboard.recentlyResolved.length).toBeGreaterThan(0);
-    expect(dashboard.upcomingAppointments[0]?.when).toMatch(/^tomorrow 2 p\.m\./);
+    expect(dashboard.upcomingAppointments[0]?.when).toBe('tomorrow at 2 p.m.');
     expect(dashboard.checkedInToday).toBe(false);
   });
 
@@ -68,7 +68,8 @@ describe('MCP tool surface (8 tools · 1 resource · 1 prompt) over the SDK clie
     const res = await client.callTool({ name: 'get_todays_plan', arguments: {} });
     expect(text(res)).toContain('Good morning, Margaret.');
     expect(text(res)).toContain('Next up is Metformin at 6 p.m.');
-    expect(text(res)).toContain('Physical therapy is tomorrow 2 p.m.');
+    expect(text(res)).toContain('Physical therapy is tomorrow at 2 p.m.');
+    expect(text(res)).not.toContain('..');
     expect(text(res)).toContain('How are you feeling today?');
   });
 

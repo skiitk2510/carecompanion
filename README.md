@@ -31,6 +31,25 @@ Boot prints `Warning: Server is binding to 0.0.0.0 without DNS rebinding protect
 validation is applied to `/mcp` only (so platform health checks on `/healthz` keep working) — see
 [docs/friction-log.md](docs/friction-log.md) FL-03.
 
+### AWS / Bedrock setup (for the simulated Alexa+ brain)
+
+The conversational brain behind `POST /api/agent` uses Amazon Bedrock (Claude Haiku 4.5 via the `us.` cross-region
+profile) and calls the MCP tools over loopback HTTP. Without Bedrock the endpoint still works through a small
+rule-based brain, so the MCP server and the demo never depend on AWS being up.
+
+1. In the Bedrock console for **us-east-1**, open _Model access_ → Anthropic and submit the one-time **use case
+   details form**, then enable **Claude Haiku 4.5**. Until that is done Bedrock answers
+   `ResourceNotFoundException: Model use case details have not been submitted…` and the app falls back to rules.
+2. Check access without spending anything:
+   ```bash
+   aws bedrock get-foundation-model-availability --model-id anthropic.claude-haiku-4-5-20251001-v1:0 --region us-east-1
+   ```
+   `agreementAvailability.status` must be `AVAILABLE` (it reads `NOT_AVAILABLE` while the form is pending).
+3. Give the runtime credentials with `bedrock:InvokeModel` (a local profile, or `AWS_ACCESS_KEY_ID` /
+   `AWS_SECRET_ACCESS_KEY` on the host) and keep `BEDROCK_REGION=us-east-1` — the region is pinned explicitly
+   because a profile's default region may differ.
+4. Try it: `npm run agent:smoke` against a running server prints which brain answered each turn.
+
 ## License
 
 MIT — see [LICENSE](LICENSE).

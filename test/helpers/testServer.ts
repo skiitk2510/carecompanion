@@ -1,5 +1,8 @@
 import { request, type IncomingHttpHeaders, type Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
+import { createBedrockBrain, type ConverseFn } from '../../src/agent/bedrockBrain.js';
+import { createRuleBrain } from '../../src/agent/ruleBrain.js';
+import { AgentService } from '../../src/agent/service.js';
 import { loadConfig } from '../../src/config.js';
 import { CareActions } from '../../src/domain/actions.js';
 import { createStore } from '../../src/domain/bootstrap.js';
@@ -14,6 +17,7 @@ export interface TestServer {
   app: CareCompanionApp;
   store: Store;
   actions: CareActions;
+  agent: AgentService;
   baseUrl: string;
   close(): Promise<void>;
 }
@@ -25,14 +29,18 @@ export interface TestServerOptions {
   env?: NodeJS.ProcessEnv;
   clock?: Clock;
   scenario?: SeedScenario;
+  /** A scripted Bedrock; when omitted the agent uses the rule brain. */
+  converse?: ConverseFn;
 }
 
-/** Boots the real Express wiring (CORS, host validation, MCP routes) on an ephemeral 127.0.0.1 port. */
+/** Boots the real Express wiring (CORS, host validation, MCP routes, agent routes) on an ephemeral 127.0.0.1 port. */
 export async function startTestServer(opts: TestServerOptions = {}): Promise<TestServer> {
   const config = loadConfig({
     HOUSEHOLD_TZ: 'America/Los_Angeles',
     SEED_ON_BOOT: 'always',
     DATA_FILE: '',
+    AGENT_BRAIN: opts.converse ? 'bedrock' : 'rules',
+    AGENT_RATE_PER_MIN: '0',
     ...opts.env,
     PORT: '0',
     HOST: '127.0.0.1',
@@ -43,18 +51,39 @@ export async function startTestServer(opts: TestServerOptions = {}): Promise<Tes
     scenario: opts.scenario ?? 'mid-morning',
   });
   const actions = new CareActions({ store, log });
-  const app = createApp({ config, log, serverFactory: () => buildServer({ log, actions }) });
 
+  let baseUrl = '';
+  const bedrock = opts.converse
+    ? createBedrockBrain({
+        converse: opts.converse,
+        modelId: config.bedrockModelId,
+        maxToolRounds: config.agentMaxToolRounds,
+        maxTokens: config.agentMaxTokens,
+        log,
+      })
+    : null;
+  const agent = new AgentService({
+    config,
+    log,
+    actions,
+    mcpUrl: () => `${baseUrl}/mcp`,
+    bedrock,
+    rules: createRuleBrain(),
+  });
+
+  const app = createApp({ config, log, serverFactory: () => buildServer({ log, actions }), agent });
   const server = await new Promise<Server>((resolve) => {
     const s = app.app.listen(0, '127.0.0.1', () => resolve(s));
   });
   const { port } = server.address() as AddressInfo;
+  baseUrl = `http://127.0.0.1:${port}`;
 
   return {
     app,
     store,
     actions,
-    baseUrl: `http://127.0.0.1:${port}`,
+    agent,
+    baseUrl,
     close: async () => {
       await app.close();
       server.closeAllConnections();
@@ -95,6 +124,16 @@ export function rawRequest(
     if (opts.body) req.write(opts.body);
     req.end();
   });
+}
+
+/** POST JSON and parse the JSON reply. */
+export async function postJson<T>(url: string, body: unknown): Promise<{ status: number; json: T }> {
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  return { status: res.status, json: (await res.json()) as T };
 }
 
 /** Polls `predicate` until it holds or `timeoutMs` elapses. */

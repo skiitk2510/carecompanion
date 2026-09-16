@@ -95,7 +95,9 @@ describe('resolveMedication', () => {
     expectMatch('metformen', SEED_IDS.metformin, 'fuzzy');
     expectMatch('warfrin', SEED_IDS.warfarin, 'fuzzy');
     expectMatch('simvastatine', SEED_IDS.simvastatin, 'fuzzy');
-    expectMatch('lisinopril 10 mg', SEED_IDS.lisinopril, 'fuzzy');
+    // An exact name token inside a longer phrase is a name match, not a fuzzy one.
+    expectMatch('lisinopril 10 mg', SEED_IDS.lisinopril, 'name');
+    expectMatch('my blood pressure pill, the lisinopril', SEED_IDS.lisinopril, 'name');
   });
 
   it('accepts a prefix of at least four letters, but not shorter fragments', () => {
