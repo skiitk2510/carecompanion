@@ -65,19 +65,23 @@ export function useDashboard(): DashboardState {
       window.clearInterval(timer);
       timer = null;
     };
-    const sync = () => {
+    // Always load once (a background tab — or an embedded pane that reports itself hidden — must still show data);
+    // only the 3-second polling is tied to visibility.
+    void refresh();
+    const sync = (afterChange = true) => {
       if (document.visibilityState === 'visible') {
-        void refresh();
+        if (afterChange) void refresh();
         start();
       } else {
         stop();
       }
     };
-    sync();
-    document.addEventListener('visibilitychange', sync);
+    sync(false);
+    const onVisibility = () => sync(true);
+    document.addEventListener('visibilitychange', onVisibility);
     return () => {
       stop();
-      document.removeEventListener('visibilitychange', sync);
+      document.removeEventListener('visibilitychange', onVisibility);
     };
   }, [refresh]);
 
