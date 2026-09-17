@@ -83,6 +83,12 @@ TypeScript, Node.js, Express 5, MCP TypeScript SDK v2 (`@modelcontextprotocol/se
 `@modelcontextprotocol/ext-apps` (MCP Apps), zod, Amazon Bedrock (Converse API, Claude Haiku 4.5), React 19, Vite,
 Tailwind CSS, Web Speech API, vitest, Render.
 
+## Images to upload with the submission
+
+`docs/figures/web-app.png` (the simulated Alexa+ experience), `docs/figures/web-app-guard.png` (the duplicate-dose
+guard), `docs/figures/mcp-app-inline.png` and `docs/figures/mcp-app-fullscreen.png` (the dashboard as an MCP App in
+a reference host, inline and fullscreen). Regenerate with `npm run figures`.
+
 ## Links
 
 - Repository (MIT): https://github.com/skiitk2510/carecompanion

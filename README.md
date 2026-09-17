@@ -126,6 +126,17 @@ terminates the session — the same wire protocol an external host uses, visible
 
 ## Demo
 
+![The simulated Alexa+ experience: the elder's Echo-Show-style device beside the family dashboard](docs/figures/web-app.png)
+
+![The duplicate-dose guard refusing a second Lisinopril and asking for an explicit confirmation and reason](docs/figures/web-app-guard.png)
+
+![The dashboard rendered as an MCP App inside the ext-apps basic-host in inline mode, dark host theme](docs/figures/mcp-app-inline.png)
+
+![The same MCP App after the view requested fullscreen from the host](docs/figures/mcp-app-fullscreen.png)
+
+Figures are reproducible: `npm run figures` drives the local Chrome through the web app and basic-host
+(`scripts/figures.mjs`).
+
 - Live server + web experience: _coming with the deployment_ (`/mcp`, `/`, `/healthz`).
 - Demo video: _coming_.
 - Script and recording checklist: [docs/demo-script.md](docs/demo-script.md). The demo menu in the web app can
