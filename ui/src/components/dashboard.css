@@ -104,14 +104,18 @@
   --cc-shadow: var(--shadow-sm, var(--cc-fb-shadow));
   --cc-font: var(--font-sans, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif);
   --cc-weight-semibold: var(--font-weight-semibold, 600);
-  --cc-radius: var(--border-radius-md, 10px);
-  --cc-radius-sm: var(--border-radius-sm, 6px);
+  /* Alexa+ visual foundations: a small set of tokens on one root scale (base canvas 768×480; the host scales
+     the whole canvas, e.g. ×1.667 on an Echo Show 8/15), radius 8/12, spacing 12/16, body 16, touch targets 48. */
+  --cc-scale: 1;
+  --cc-unit: calc(4px * var(--cc-scale));
+  --cc-radius: var(--border-radius-md, calc(3 * var(--cc-unit)));
+  --cc-radius-sm: var(--border-radius-sm, calc(2 * var(--cc-unit)));
   --cc-radius-full: var(--border-radius-full, 999px);
-  --cc-gap: 16px;
-  --cc-pad: 16px;
-  --cc-control: 44px;
-  --cc-text-sm: 13px;
-  --cc-text-xs: 12px;
+  --cc-gap: calc(4 * var(--cc-unit));
+  --cc-pad: calc(4 * var(--cc-unit));
+  --cc-control: calc(12 * var(--cc-unit));
+  --cc-text-sm: calc(3.5 * var(--cc-unit));
+  --cc-text-xs: calc(3 * var(--cc-unit));
 
   container-type: inline-size;
   container-name: cc-dashboard;
@@ -123,16 +127,16 @@
   margin: 0 auto;
   box-sizing: border-box;
   font-family: var(--cc-font);
-  font-size: var(--font-text-md-size, 15px);
+  font-size: var(--font-text-md-size, calc(4 * var(--cc-unit)));
   line-height: 1.45;
   color: var(--cc-text);
   -webkit-text-size-adjust: 100%;
 }
 
 .cc-dashboard--compact {
-  --cc-gap: 12px;
-  --cc-pad: 12px;
-  font-size: 14px;
+  --cc-gap: calc(3 * var(--cc-unit));
+  --cc-pad: calc(3 * var(--cc-unit));
+  font-size: calc(3.75 * var(--cc-unit));
 }
 
 .cc-dashboard *,
@@ -1238,5 +1242,30 @@
   }
   .cc-details__summary::before {
     transition: none;
+  }
+}
+
+/* --- Inline (Alexa+ inline display mode): essentials only, wider than tall so it renders as a Block ---------- */
+.cc-dashboard--inline .cc-header--inline {
+  align-items: center;
+}
+.cc-inline-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--cc-gap);
+}
+.cc-dashboard--inline .cc-tiles {
+  grid-template-columns: 1fr;
+}
+@container (min-width: 600px) {
+  .cc-inline-grid {
+    grid-template-columns: minmax(180px, 0.8fr) 1.2fr 1.2fr;
+    align-items: start;
+  }
+}
+@media (min-width: 600px) {
+  .cc-inline-grid {
+    grid-template-columns: minmax(180px, 0.8fr) 1.2fr 1.2fr;
+    align-items: start;
   }
 }

@@ -17,6 +17,12 @@ export interface DashboardActions {
   refresh(): Promise<void>;
 }
 
+/**
+ * `full` is the complete dashboard (web app, fullscreen MCP App, hosts without display modes).
+ * `inline` is the Alexa+ inline-mode summary: wider than tall (a "Block"), essentials only, with an Expand control.
+ */
+export type DashboardLayout = 'full' | 'inline';
+
 export interface DashboardProps {
   data: DashboardData | null;
   loading: boolean;
@@ -29,4 +35,7 @@ export interface DashboardProps {
   compact?: boolean;
   /** ISO time of the last successful refresh, for the footer. */
   lastUpdated?: string | null;
+  layout?: DashboardLayout;
+  /** Shown as an "Open full dashboard" control in the inline layout (e.g. requests fullscreen from the host). */
+  onExpand?: () => void;
 }

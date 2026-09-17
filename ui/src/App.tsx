@@ -2,13 +2,18 @@
  * The MCP App view for `caregiver_summary`. The host delivers the tool result through the app bridge; the view
  * refreshes and acts (resolve alerts, mark doses) by calling server tools through the same bridge — it never
  * opens a network connection of its own (the resource ships with an empty CSP).
+ *
+ * Display modes follow the Alexa+ design guide: in `inline` mode (when the host can also offer `fullscreen`) the
+ * view shows a wider-than-tall summary block with an "open full dashboard" control; in `fullscreen`, or in hosts
+ * that do not report display modes, it shows the complete dashboard.
  */
 import type { CallToolResult } from '@modelcontextprotocol/client';
+import type { McpUiHostContext } from '@modelcontextprotocol/ext-apps';
 import { useApp, useHostStyles } from '@modelcontextprotocol/ext-apps/react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { DashboardData } from '@shared/dashboard';
 import { Dashboard } from './components/Dashboard';
-import type { DashboardActions } from './components/types';
+import type { DashboardActions, DashboardLayout } from './components/types';
 
 const APP_INFO = { name: 'carecompanion-dashboard', version: '0.1.0' };
 const POLL_MS = 10_000;
@@ -30,6 +35,18 @@ function isDashboardData(value: unknown): value is DashboardData {
   return !!value && typeof value === 'object' && Array.isArray((value as DashboardData).todaysDoses);
 }
 
+/** Inline summary only when the host is in inline mode AND can expand to fullscreen; otherwise the full dashboard. */
+function layoutFor(ctx: McpUiHostContext | null | undefined): DashboardLayout {
+  if (!ctx) return 'full';
+  const canExpand = (ctx.availableDisplayModes ?? []).includes('fullscreen');
+  return ctx.displayMode === 'inline' && canExpand ? 'inline' : 'full';
+}
+
+function insetStyle(ctx: McpUiHostContext | null | undefined): React.CSSProperties | undefined {
+  const s = ctx?.safeAreaInsets;
+  return s ? { padding: `${s.top}px ${s.right}px ${s.bottom}px ${s.left}px` } : undefined;
+}
+
 export function App() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -37,6 +54,7 @@ export function App() {
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
   const [caregiverId, setCaregiverId] = useState(DEFAULT_CAREGIVER);
   const [tornDown, setTornDown] = useState(false);
+  const [hostContext, setHostContext] = useState<McpUiHostContext | null>(null);
   const argsRef = useRef<ToolArgs>({});
 
   const applyResult = useCallback((result: CallToolResult) => {
@@ -59,7 +77,7 @@ export function App() {
     error: appError,
   } = useApp({
     appInfo: APP_INFO,
-    capabilities: {},
+    capabilities: { availableDisplayModes: ['inline', 'fullscreen'] },
     onAppCreated: (created) => {
       created.ontoolinput = (params) => {
         argsRef.current = (params.arguments ?? {}) as ToolArgs;
@@ -69,6 +87,9 @@ export function App() {
         setLoading(false);
         setError(reason ? `The host cancelled the request (${reason}).` : 'The host cancelled the request.');
       };
+      created.onhostcontextchanged = (changed) => {
+        setHostContext((current) => ({ ...(current ?? {}), ...changed }));
+      };
       created.onteardown = async () => {
         setTornDown(true);
         return {};
@@ -76,6 +97,11 @@ export function App() {
     },
   });
   useHostStyles(app, app?.getHostContext());
+
+  // The initial context is available once connected; later changes arrive through onhostcontextchanged.
+  useEffect(() => {
+    if (isConnected && app) setHostContext((current) => current ?? app.getHostContext() ?? null);
+  }, [isConnected, app]);
 
   const refresh = useCallback(async () => {
     if (!app || tornDown) return;
@@ -138,6 +164,17 @@ export function App() {
     [app, caregiverId, refresh]
   );
 
+  const layout = layoutFor(hostContext);
+  const expand = useCallback(async () => {
+    if (!app) return;
+    try {
+      const { mode } = await app.requestDisplayMode({ mode: 'fullscreen' });
+      setHostContext((current) => ({ ...(current ?? {}), displayMode: mode }));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    }
+  }, [app]);
+
   if (appError) {
     return (
       <main className="cc-app">
@@ -149,7 +186,7 @@ export function App() {
   }
 
   return (
-    <main className="cc-app">
+    <main className="cc-app" style={insetStyle(hostContext)}>
       <Dashboard
         data={data}
         loading={loading && !data}
@@ -159,6 +196,8 @@ export function App() {
         actions={actions}
         compact
         lastUpdated={lastUpdated}
+        layout={layout}
+        onExpand={layout === 'inline' ? expand : undefined}
       />
     </main>
   );

@@ -2,6 +2,10 @@
  * The shared caregiver dashboard — one component, two hosts: the MCP App view (ui/, inside Alexa+ / Inspector,
  * `compact`) and the simulated Alexa+ web app (web/). It renders only what it is given through `DashboardProps`
  * (see types.ts) and never talks to a network or runs timers of its own; the parent polls and passes fresh data.
+ *
+ * Two layouts, following the Alexa+ MCP design guide: `full` (the information-dense dashboard — fullscreen mode,
+ * the web app, hosts without display modes) and `inline` (a wider-than-tall summary block for inline mode, with
+ * a control that asks the host for fullscreen).
  */
 import './dashboard.css';
 import type { DashboardProps } from './types';
@@ -18,11 +22,29 @@ import { Appointments } from './Appointments';
 import { MedicationList } from './MedicationList';
 import { Footer } from './Footer';
 
-export type { DashboardActions, DashboardProps, MarkTakenOutcome } from './types';
+export type { DashboardActions, DashboardLayout, DashboardProps, MarkTakenOutcome } from './types';
+
+const INLINE_DOSES = 3;
+const INLINE_ALERTS = 3;
 
 export function Dashboard(props: DashboardProps) {
-  const { data, loading, error, caregiverId, onCaregiverChange, actions, compact = false, lastUpdated = null } = props;
-  const rootClass = cx('cc-dashboard', compact && 'cc-dashboard--compact');
+  const {
+    data,
+    loading,
+    error,
+    caregiverId,
+    onCaregiverChange,
+    actions,
+    compact = false,
+    lastUpdated = null,
+    layout = 'full',
+    onExpand,
+  } = props;
+  const rootClass = cx(
+    'cc-dashboard',
+    compact && 'cc-dashboard--compact',
+    layout === 'inline' && 'cc-dashboard--inline'
+  );
 
   if (!data) {
     return (
@@ -34,6 +56,48 @@ export function Dashboard(props: DashboardProps) {
   }
 
   const actor = data.caregivers.find((c) => c.id === caregiverId);
+  const localTime = spokenClockTime(data.localTime);
+
+  if (layout === 'inline') {
+    // Essentials only, arranged wider than tall so Alexa+ renders it as a native Block.
+    const upcoming = data.todaysDoses.filter((d) => d.status === 'scheduled' || d.status === 'missed');
+    const doses = (upcoming.length > 0 ? upcoming : data.todaysDoses.slice(-INLINE_DOSES)).slice(0, INLINE_DOSES);
+    return (
+      <div className={rootClass}>
+        {error && <ErrorBanner message={error} retry={actions.refresh} stale />}
+        <header className="cc-header cc-header--inline">
+          <div className="cc-header__text">
+            <h2 className="cc-title">{data.elder.preferredName}'s day</h2>
+            <p className="cc-subtitle">
+              {localTime} household time · {data.checkedInToday ? 'checked in today' : 'no check-in yet today'}
+            </p>
+          </div>
+          {onExpand && (
+            <ActionButton variant="primary" aria-label="Open the full dashboard" onClick={onExpand}>
+              Full dashboard
+            </ActionButton>
+          )}
+        </header>
+        <div className="cc-inline-grid">
+          <div className="cc-inline-col">
+            <StatTiles data={data} />
+          </div>
+          <div className="cc-inline-col">
+            <DoseTimeline doses={doses} nextUp={data.nextUp} markTaken={actions.markTaken} />
+          </div>
+          <div className="cc-inline-col">
+            <AlertList
+              open={data.openAlerts.slice(0, INLINE_ALERTS)}
+              resolved={[]}
+              resolveAlert={actions.resolveAlert}
+              actorName={actor?.name}
+            />
+          </div>
+        </div>
+        <Footer lastUpdated={lastUpdated} refresh={actions.refresh} />
+      </div>
+    );
+  }
 
   return (
     <div className={rootClass}>
@@ -43,8 +107,7 @@ export function Dashboard(props: DashboardProps) {
         <div className="cc-header__text">
           <h2 className="cc-title">{data.elder.preferredName}'s week</h2>
           <p className="cc-subtitle">
-            {longLocalDate(data.today)} · <span title={data.household.timezone}>{spokenClockTime(data.localTime)}</span>{' '}
-            household time
+            {longLocalDate(data.today)} · <span title={data.household.timezone}>{localTime}</span> household time
           </p>
         </div>
         <CaregiverPicker caregivers={data.caregivers} selectedId={caregiverId} onChange={onCaregiverChange} />
