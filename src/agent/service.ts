@@ -16,7 +16,14 @@ export interface AgentServiceDeps {
   bedrock: Brain | null;
   rules: Brain;
   /** Test seam; defaults to a real MCP client over loopback HTTP. */
-  openExecutor?: (mcpUrl: string, allow: readonly string[], log: Logger) => Promise<ToolExecutor>;
+  openExecutor?: (
+    mcpUrl: string,
+    allow: readonly string[],
+    log: Logger,
+    authToken?: () => string
+  ) => Promise<ToolExecutor>;
+  /** Mints a Bearer token for the loopback client when /mcp requires Tier-1 auth. */
+  mcpAuthToken?: () => string;
 }
 
 const MAX_HISTORY_TURNS = 6;
@@ -56,7 +63,7 @@ export class AgentService {
       .filter((t) => t.text.length > 0);
     const context = this.context(request.elderId, speaker);
     const open = this.deps.openExecutor ?? openMcpExecutor;
-    const tools = await open(this.deps.mcpUrl(), toolsFor(speaker), this.log);
+    const tools = await open(this.deps.mcpUrl(), toolsFor(speaker), this.log, this.deps.mcpAuthToken);
     try {
       const brain = this.pickBrain();
       const input = { request: { ...request, speaker }, history, context, tools };

@@ -10,6 +10,7 @@ import type { Logger } from '../log.js';
 import { packageRoot } from '../paths.js';
 import { APP_VERSION } from '../version.js';
 import { mountAgentRoutes } from './agentRoutes.js';
+import { clientCredentialsConfig, mountAuthRoutes } from './authRoutes.js';
 import { mountDashboardRoutes } from './dashboardRoutes.js';
 import { mountDemoRoutes } from './demoRoutes.js';
 import { mountMcpRoutes, type McpRoutes } from './mcpRoutes.js';
@@ -69,6 +70,13 @@ export function createApp(deps: AppDeps): CareCompanionApp {
     app.use('/mcp', originValidation(config.corsOrigins.map(hostnameOf)));
   }
 
+  // Optional Tier-1 auth (Alexa+ client-credentials): discovery docs + token endpoint, then a bearer guard on /mcp.
+  const credentials = clientCredentialsConfig(config);
+  if (credentials) {
+    app.use('/mcp', mountAuthRoutes(app, config, credentials, log));
+    log.info('MCP auth enabled', { mode: config.mcpAuth, issuer: config.publicUrl, resource: credentials.resource });
+  }
+
   const mcp = mountMcpRoutes(app, { log, serverFactory: deps.serverFactory });
   if (deps.agent) mountAgentRoutes(app, deps.agent, log, config.agentRatePerMin);
   if (deps.actions) {
@@ -82,6 +90,7 @@ export function createApp(deps: AppDeps): CareCompanionApp {
       version: APP_VERSION,
       uptimeSec: Math.round((Date.now() - startedAt) / 1000),
       mcpSessions: mcp.sessions.size,
+      auth: config.mcpAuth,
       agent: deps.agent ? deps.agent.status() : null,
       demo: deps.actions ? deps.actions.demoStatus() : null,
     });

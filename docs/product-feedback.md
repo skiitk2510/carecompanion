@@ -98,6 +98,9 @@ because the toolkit is documented as available in the United States only._
   (6) the Client and App Lifecycle page's example handshake uses `protocolVersion: "2025-03-26"` while the Overview
   says 2025-11-25 — server authors need to know which the client actually sends (we verified our server negotiates
   both); (7) the Authentication page documents Tier-1 client-credentials mechanics well but never says whether an
-  add-on without account linking may use an unauthenticated server.
+  add-on without account linking may use an unauthenticated server; (8) the checklist's "401 without a
+  `WWW-Authenticate` header" contradicts RFC 9728 discovery (which the MCP SDK's `requireBearerAuth` implements by
+  sending `WWW-Authenticate: Bearer resource_metadata=…`) — we had to bypass the SDK middleware and answer 401 by
+  hand; stating which behaviour Alexa+ actually needs, and why, would save every implementer that detour.
 - **Would build on it again:** yes — the toolkit's constraints are the right ones for voice; we would gladly onboard
   the finished server through `alexa-ai` the day the toolkit opens outside the US.

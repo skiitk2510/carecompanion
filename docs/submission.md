@@ -72,8 +72,10 @@ same wire protocol Alexa+ would use — and a rule-based brain keeps the demo al
 
 CareCompanion is a coordination and reminder tool, not medical advice. Interaction warnings are informational and
 sourced from a small curated table; escalation errs toward alerting a human; nothing is ever overridden without an
-explicit confirmation and a reason from the person. A production deployment would add authentication (the SDK's
-OAuth middleware is ready to mount), a real datastore, and clinically maintained interaction data.
+explicit confirmation and a reason from the person. The server implements the Alexa+ Tier-1 service-level
+authentication (client-credentials token endpoint, RFC 8414/9728 discovery, Bearer-guarded `/mcp`) behind a switch;
+the public demo runs it open because the household is synthetic. A production deployment would add user-level
+account linking, a real datastore, and clinically maintained interaction data.
 
 ## Built with
 

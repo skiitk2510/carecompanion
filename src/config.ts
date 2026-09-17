@@ -2,6 +2,7 @@ import { parseLogLevel, type LogLevel } from './log.js';
 
 export type SeedMode = 'always' | 'if-empty' | 'never';
 export type AgentBrain = 'bedrock' | 'rules';
+export type McpAuthMode = 'none' | 'client_credentials';
 
 export interface Config {
   port: number;
@@ -25,6 +26,12 @@ export interface Config {
   demoResetToken: string | undefined;
   demoClockOffsetMin: number;
   ringEnabled: boolean;
+  /** Public base URL (no trailing slash) used as OAuth issuer and for the `resource` of /mcp. */
+  publicUrl: string;
+  mcpAuth: McpAuthMode;
+  mcpClientId: string | undefined;
+  mcpClientSecret: string | undefined;
+  mcpTokenTtlSec: number;
 }
 
 export const DEFAULT_BEDROCK_MODEL_ID = 'us.anthropic.claude-haiku-4-5-20251001-v1:0';
@@ -36,9 +43,14 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     allowedHosts.push(env.RENDER_EXTERNAL_HOSTNAME);
   }
   const corsRaw = list(env.CORS_ORIGINS, ['*']);
+  const port = int(env.PORT, 3000);
+  const publicUrl = (
+    env.PUBLIC_URL ??
+    (env.RENDER_EXTERNAL_HOSTNAME ? `https://${env.RENDER_EXTERNAL_HOSTNAME}` : `http://localhost:${port}`)
+  ).replace(/\/+$/, '');
 
   return {
-    port: int(env.PORT, 3000),
+    port,
     host: env.HOST ?? '0.0.0.0',
     nodeEnv: env.NODE_ENV ?? 'development',
     logLevel: parseLogLevel(env.LOG_LEVEL),
@@ -58,6 +70,11 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     demoResetToken: env.DEMO_RESET_TOKEN || undefined,
     demoClockOffsetMin: int(env.DEMO_CLOCK_OFFSET_MIN, 0),
     ringEnabled: bool(env.RING_ENABLED, false),
+    publicUrl,
+    mcpAuth: oneOf(env.MCP_AUTH, ['none', 'client_credentials'], 'none'),
+    mcpClientId: env.MCP_CLIENT_ID || undefined,
+    mcpClientSecret: env.MCP_CLIENT_SECRET || undefined,
+    mcpTokenTtlSec: Math.min(int(env.MCP_TOKEN_TTL_SEC, 3600), 3600),
   };
 }
 

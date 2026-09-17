@@ -2,7 +2,9 @@ import { createBedrockBrain } from './agent/bedrockBrain.js';
 import { createConverse } from './agent/bedrockClient.js';
 import { createRuleBrain } from './agent/ruleBrain.js';
 import { AgentService } from './agent/service.js';
+import { issueToken } from './auth/clientCredentials.js';
 import { loadConfig } from './config.js';
+import { clientCredentialsConfig } from './http/authRoutes.js';
 import { CareActions } from './domain/actions.js';
 import { createStore } from './domain/bootstrap.js';
 import { createApp } from './http/app.js';
@@ -28,6 +30,7 @@ const bedrock =
         log,
       })
     : null;
+const credentials = clientCredentialsConfig(config);
 const agent = new AgentService({
   config,
   log,
@@ -35,6 +38,7 @@ const agent = new AgentService({
   mcpUrl: () => `http://127.0.0.1:${boundPort}/mcp`,
   bedrock,
   rules,
+  ...(credentials ? { mcpAuthToken: () => issueToken(credentials, 'carecompanion-agent', 300) } : {}),
 });
 
 const { app, close } = createApp({

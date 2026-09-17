@@ -3,7 +3,9 @@ import type { AddressInfo } from 'node:net';
 import { createBedrockBrain, type ConverseFn } from '../../src/agent/bedrockBrain.js';
 import { createRuleBrain } from '../../src/agent/ruleBrain.js';
 import { AgentService } from '../../src/agent/service.js';
+import { issueToken } from '../../src/auth/clientCredentials.js';
 import { loadConfig } from '../../src/config.js';
+import { clientCredentialsConfig } from '../../src/http/authRoutes.js';
 import { CareActions } from '../../src/domain/actions.js';
 import { createStore } from '../../src/domain/bootstrap.js';
 import type { SeedScenario } from '../../src/domain/seed.js';
@@ -63,6 +65,7 @@ export async function startTestServer(opts: TestServerOptions = {}): Promise<Tes
         log,
       })
     : null;
+  const credentials = clientCredentialsConfig(config);
   const agent = new AgentService({
     config,
     log,
@@ -70,6 +73,7 @@ export async function startTestServer(opts: TestServerOptions = {}): Promise<Tes
     mcpUrl: () => `${baseUrl}/mcp`,
     bedrock,
     rules: createRuleBrain(),
+    ...(credentials ? { mcpAuthToken: () => issueToken(credentials, 'carecompanion-agent', 300) } : {}),
   });
 
   const app = createApp({ config, log, serverFactory: () => buildServer({ log, actions }), agent, actions });

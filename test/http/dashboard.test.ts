@@ -115,6 +115,10 @@ describe('REST routes for the web app (dashboard + demo controls)', () => {
       headers: { 'content-type': 'application/json', 'x-demo-token': 'test-token' },
       body: JSON.stringify({ scenario: 'default', targetLocalTime: '08:15' }),
     });
-    expect((await target.json()) as DemoStatus).toMatchObject({ localTime: '08:15', clockOffsetMin: -135, scenario: 'default' });
+    expect((await target.json()) as DemoStatus).toMatchObject({
+      localTime: '08:15',
+      clockOffsetMin: -135,
+      scenario: 'default',
+    });
   });
 });

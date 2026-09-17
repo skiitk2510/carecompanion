@@ -25,8 +25,17 @@ export function sanitizeSchema(schema: unknown): unknown {
   return schema;
 }
 
-export async function openMcpExecutor(mcpUrl: string, allow: readonly string[], log: Logger): Promise<ToolExecutor> {
-  const transport = new StreamableHTTPClientTransport(new URL(mcpUrl));
+export async function openMcpExecutor(
+  mcpUrl: string,
+  allow: readonly string[],
+  log: Logger,
+  authToken?: () => string
+): Promise<ToolExecutor> {
+  // When the server requires Tier-1 auth, the agent presents the same kind of Bearer token an Alexa+ add-on would.
+  const transport = new StreamableHTTPClientTransport(
+    new URL(mcpUrl),
+    authToken ? { authProvider: { token: async () => authToken() } } : {}
+  );
   const client = new Client({ name: 'carecompanion-agent', version: APP_VERSION });
   await client.connect(transport);
   const { tools } = await client.listTools();

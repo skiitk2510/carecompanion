@@ -153,8 +153,22 @@ Amazon's **Local Inspector** (`addon-local-inspector https://<your-host>/mcp`, d
 Console) renders the `caregiver_summary` MCP App in Small (≤10") and Large (≥11") device frames and writes a
 certification verdict; the view was built for exactly those breakpoints.
 
-The demo deployment is unauthenticated on purpose (synthetic household, no PHI); an account-linked add-on would mount
-the SDK's OAuth middleware in front of `/mcp`.
+### Service-level authentication (Alexa+ Tier 1)
+
+The public demo is unauthenticated on purpose (synthetic household, no PHI). The toolkit's Tier-1 model — the
+add-on fetches a short-lived Bearer token with the OAuth 2.0 client-credentials grant and sends it on every MCP
+request — is built in and switched on with three variables:
+
+```bash
+MCP_AUTH=client_credentials MCP_CLIENT_ID=alexa-addon MCP_CLIENT_SECRET=<long random string> PUBLIC_URL=https://<host>
+```
+
+With that set: `GET /.well-known/oauth-authorization-server` and `/.well-known/oauth-protected-resource/mcp` describe
+the server (RFC 8414 / 9728); `POST /oauth/token` (HTTP Basic client auth, `grant_type=client_credentials`,
+optional `resource=<PUBLIC_URL>/mcp`) returns a token valid for up to an hour; `/mcp` answers `401` JSON without a
+`WWW-Authenticate` header to anything else, exactly as the Alexa+ checklist asks. Tokens are stateless HMAC
+envelopes, so restarts and multiple instances need no shared store. The simulated Alexa+ brain mints its own token
+for its loopback calls. User-level account linking (Tier 2) is out of scope for a synthetic household.
 
 ## Safety & scope
 
