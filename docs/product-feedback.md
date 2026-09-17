@@ -82,7 +82,11 @@ because the toolkit is documented as available in the United States only._
   **500 ms round-trip latency budget**, and MCP Apps for visuals with "dashboards" named as a use case — every one of
   those shaped this project (in-memory tools answer in ~10 ms; the dashboard is an MCP App). The CLI flow
   (`configure` → `new mcp --mcp-server-url` → `deploy` → web simulator → `submit`) is short and readable, and an
-  Add-on Agent Skill for coding agents is a great idea.
+  Add-on Agent Skill for coding agents is a great idea. The **MCP Design Guide** is the best part of the surface:
+  the display-mode model (inline for summaries, fullscreen for information-dense views, voice-only as a first-class
+  case), the Block-vs-Card rendering rule, and the visual foundations (768×480 base canvas, one root scale, type and
+  spacing tokens) and accessibility page (48 px targets, 4.5:1 contrast, input parity) are concrete enough to
+  implement from directly — our dashboard's inline/fullscreen split and token scale came straight from them.
 - **Needs work:** (1) the QuickStart's authentication checklist reads as mandatory (401 without `WWW-Authenticate`,
   PRM document) but never says whether an add-on **without** account linking may talk to an unauthenticated server —
   the single most common question for a hackathon or internal-tool server; (2) the US-only availability is stated in

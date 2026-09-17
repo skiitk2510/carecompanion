@@ -105,7 +105,10 @@ flowchart LR
   refuse with confirmation), `interactions.ts` (curated pair table + brand aliases + allergy classes),
   `escalation.ts` (phrase bands with word boundaries; help → everyone).
 - **MCP App:** `caregiver_summary` is registered with `registerAppTool` and the view with `registerAppResource`;
-  the view talks to the server only through the host bridge (`callServerTool`) and ships with an empty CSP.
+  the view talks to the server only through the host bridge (`callServerTool`) and ships with an empty CSP. It
+  follows the Alexa+ design guide: in **inline** mode it renders a wider-than-tall summary block (stat tiles, next
+  doses, open alerts) with a control that requests **fullscreen** for the full dashboard; tokens sit on one root
+  scale (16 px body, 8/12 px radii, 48 px touch targets) and the host's theme variables win over the fallbacks.
 
 ## Runtime MCP calls (how the agent uses the server)
 

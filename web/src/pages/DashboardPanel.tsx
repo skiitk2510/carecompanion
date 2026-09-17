@@ -2,9 +2,9 @@
  * The caregiver pane: the shared Dashboard component (ui/) fed by the REST routes, with the 7/30-day window toggle,
  * the "Add medication" disclosure and the voice-first summary sentence the server produced alongside the data.
  */
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Dashboard } from '@ui/components/Dashboard';
-import type { DashboardActions } from '@ui/components/types';
+import type { DashboardActions, DashboardLayout } from '@ui/components/types';
 import { logDose, resolveAlert } from '../lib/api';
 import { formatClock } from '../lib/text';
 import type { AdherenceWindow, DashboardState } from '../lib/useDashboard';
@@ -19,8 +19,15 @@ interface DashboardPanelProps {
 
 const WINDOWS: AdherenceWindow[] = [7, 30];
 
+const LAYOUTS: Array<{ id: DashboardLayout; label: string }> = [
+  { id: 'full', label: 'Full dashboard' },
+  { id: 'inline', label: 'Alexa+ inline preview' },
+];
+
 export function DashboardPanel({ dashboard, caregiverId, onCaregiverChange }: DashboardPanelProps) {
   const { data, spoken, loading, error, lastUpdated, days, setDays, refresh } = dashboard;
+  // Preview of what the MCP App shows in Alexa+'s inline display mode (the block a customer sees in conversation).
+  const [layout, setLayout] = useState<DashboardLayout>('full');
 
   const actions = useMemo<DashboardActions>(
     () => ({
@@ -75,6 +82,25 @@ export function DashboardPanel({ dashboard, caregiverId, onCaregiverChange }: Da
           <RefreshIcon className="h-4 w-4" />
           Refresh
         </button>
+        <div
+          role="group"
+          aria-label="Dashboard layout"
+          className="inline-flex rounded-lg border border-slate-300 bg-white p-0.5 shadow-sm"
+        >
+          {LAYOUTS.map((option) => (
+            <button
+              key={option.id}
+              type="button"
+              onClick={() => setLayout(option.id)}
+              aria-pressed={layout === option.id}
+              className={`rounded-md px-3 py-1 text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 ${
+                layout === option.id ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-700 hover:bg-slate-100'
+              }`}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
         <span className="text-xs text-slate-500" aria-live="polite">
           {lastUpdated ? `Updated ${formatClock(lastUpdated)} · polls every 3 s while visible` : 'Loading…'}
         </span>
@@ -103,6 +129,8 @@ export function DashboardPanel({ dashboard, caregiverId, onCaregiverChange }: Da
           onCaregiverChange={onCaregiverChange}
           actions={actions}
           lastUpdated={lastUpdated}
+          layout={layout}
+          onExpand={layout === 'inline' ? () => setLayout('full') : undefined}
         />
       </div>
     </div>
