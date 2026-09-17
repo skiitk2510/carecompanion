@@ -80,6 +80,15 @@ Running log of friction hit while building CareCompanion for the Alexa+ track, k
 - **Workaround:** `content: { relative: true, files: [...] }`.
 - **Suggestion:** Resolve relative globs against the config file by default (or warn when a glob matches zero files).
 
+## FL-11 · The Alexa+ auth checklist and the MCP SDK's bearer middleware disagree about `WWW-Authenticate`
+
+- **Date:** 2026-09-17 · **Tool:** Alexa+ MCP Toolkit (Authentication / QuickStart checklist) vs `@modelcontextprotocol/express` `requireBearerAuth` · **Severity:** medium
+- **Task:** Add the Tier-1 client-credentials authentication the toolkit documents in front of `/mcp`.
+- **Steps:** The QuickStart checklist says the server "must return 401 Unauthorized (without WWW-Authenticate header) for unauthenticated requests". The SDK's `requireBearerAuth` middleware answers 401 **with** `WWW-Authenticate: Bearer resource_metadata=…`, which is what RFC 9728 discovery (and the SDK's own client) expects.
+- **Expectation vs reality:** Expected the toolkit to accept the standard challenge. Reality: two authoritative sources with opposite instructions and no rationale on either side.
+- **Workaround:** Kept the SDK's runtime-neutral `verifyBearerToken` for validation and wrote a 10-line middleware that sends the bare 401 JSON (`src/http/authRoutes.ts`); the discovery documents are still served at both well-known paths.
+- **Suggestion:** Either accept the RFC 9728 challenge or explain why the header must be absent; and document whether an add-on without account linking may call an unauthenticated server at all.
+
 ## FL-05 · Fresh `npm install` resolves TypeScript 6 / ESLint 10, which `typescript-eslint` 8 does not support
 
 - **Date:** 2026-09-16 · **Tool:** general TypeScript toolchain · **Severity:** low (general ecosystem)
