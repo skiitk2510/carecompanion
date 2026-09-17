@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Captures the README / Devpost figures from a running server and the ext-apps basic-host with the local Chrome.
 // Usage: node scripts/figures.mjs   (env: WEB_URL, HOST_URL, DEMO_RESET_TOKEN, CHROME)
+/* global document */ // the evaluate()/waitForFunction() callbacks below run inside the browser page
 import { mkdir } from 'node:fs/promises';
 import puppeteer from 'puppeteer-core';
 
