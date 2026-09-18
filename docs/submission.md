@@ -83,6 +83,80 @@ TypeScript, Node.js, Express 5, MCP TypeScript SDK v2 (`@modelcontextprotocol/se
 `@modelcontextprotocol/ext-apps` (MCP Apps), zod, Amazon Bedrock (Converse API, Claude Haiku 4.5), React 19, Vite,
 Tailwind CSS, Web Speech API, vitest, Render.
 
+## Devpost form — the real fields (read from the draft on 2026-09-18)
+
+The submission is a five-step wizard. Draft id `1187950`, project name `CareCompanion`, tagline as above (198/200
+characters). What each step needs:
+
+1. **Project overview** — name + elevator pitch. _Done._
+2. **Project details** — "About the project" (Markdown; Devpost suggests Inspiration / What it does / How we built
+   it / Challenges / Accomplishments / What we learned / What's next), "Built with" tags (≤ 25), "Try it out" links,
+   image gallery (≤ 15, 3:2), **video demo link (required by the browser, so this step cannot be saved before the
+   video exists)**.
+3. **Additional info** (for judges; not public unless noted) — submitter type, organization ("N/A"), country
+   (appears in gallery), Canada province ("N/A"), **primary track(s)** (multi-select; appears in gallery), repo URL,
+   new vs existing, **AWS Builder mini** Yes/No + "which AWS services and how", **Open Source mini** Yes/No +
+   contribution URL + repo URL + GitHub username + description, optional **Feature Requests**, optional **Friction
+   Log** (a single-line field: put the URL), optional **Project Testing Link** (the live URL), **Feedback questions
+   1–5** (all required), three eligibility attestations (required checkboxes — the submitter ticks them).
+4. **Finalization** — review + submit (the submitter clicks).
+
+### "Built with" tags
+
+typescript, node.js, express, mcp, model-context-protocol, mcp-apps, agent-skills, amazon-bedrock, claude, aws-sdk,
+react, vite, tailwindcss, zod, vitest, web-speech-api, render, github-actions, alexa
+
+### "Try it out" links
+
+- https://github.com/skiitk2510/carecompanion
+- Live: `https://<render-host>/` — _fill in after deployment_
+
+### Additional-info answers (paste-ready; also entered in the draft)
+
+- Submitter type: Individual · Organization: N/A · Country: India · Canada province: N/A
+- Primary track: **Alexa+** · Repo: https://github.com/skiitk2510/carecompanion · New project: **New**
+- AWS Builder mini: **Yes** · Open Source mini: **Yes** (contribution URL = repo URL; GitHub username `skiitk2510`)
+- Project testing link: the live URL — _fill in after deployment_
+
+**AWS services and how:** Amazon Bedrock (Converse API, Anthropic Claude Haiku 4.5 through the `us.` cross-region
+inference profile, `@aws-sdk/client-bedrock-runtime`) is the conversational brain of the simulated Alexa+
+experience. On every turn the server sends the utterance and history to Bedrock together with the MCP server's own
+`tools/list` converted into Converse toolSpecs; every requested `toolUse` is executed through a real MCP client over
+loopback Streamable HTTP (initialize, tools/call, DELETE, all logged), all results of a round go back in one user
+turn, and the loop continues until `end_turn` (`src/agent/bedrockBrain.ts`, `src/agent/mcpExecutor.ts`). The region
+is pinned (us-east-1); per-IP rate limits, a daily turn cap and a five-minute pause after access errors guard the
+loop; a rule-based fallback brain answers when Bedrock is unavailable; credentials are a least-privilege IAM user.
+Documented in the README and `docs/product-feedback.md`; unit-tested with a scripted Converse; exercised live with
+`npm run agent:smoke`.
+
+**Open Source mini description:** a brand-new MIT repository created inside the window (first commit 2026-09-16)
+and built in public with CI. It is a complete, reusable MCP server for eldercare coordination (8 tools, resource
+template, prompt), the sessionful Streamable HTTP wiring voice hosts need, a dashboard MCP App with inline and
+fullscreen modes, an Agent Skill validated with `skills-ref`, Alexa+ Tier-1 client-credentials auth on the SDK's
+bearer helpers, a Bedrock tool-use loop over a real MCP client, and 170 tests under three timezones. Most public
+MCP examples are stateless toy servers; this shows the whole Alexa+-ready shape plus a safety-guardrail domain, with
+a dated friction log and product feedback others can learn from.
+
+**Feature requests (priority):**
+
+1. Critical — state whether an add-on without account linking may call an unauthenticated server, and reconcile the
+   "401 without `WWW-Authenticate`" checklist with RFC 9728 discovery as the MCP SDK implements it.
+2. Important — publish the Local Inspector on npm / outside the Developer Console so it can run in CI and by
+   developers who cannot open the console.
+3. Important — open the MCP Toolkit (alexa-ai, web simulator) outside the United States, at least for dev-stage.
+4. Nice-to-have — MCP SDK: type `structuredContent` from `outputSchema`, name the tool/key in validation errors,
+   ship a sessionful handler in the package.
+5. Nice-to-have — Bedrock: a dedicated model-access error with a console deep link; one name for the prerequisite.
+
+**Friction log field (single line):** the URL of `docs/friction-log.md` plus "11 dated entries (task, steps,
+expected vs actual, severity, workaround, suggestion)".
+
+**Feedback questions 1–5:** the per-tool answers are the condensed form of [product-feedback.md](product-feedback.md)
+(sections: MCP SDK v2, MCP Apps, MCP Inspector, Bedrock, Alexa+ docs, Agent Skills, Web Speech, Render). Q1 = tools
+and what for; Q2 = what worked; Q3 = needs work with FL-xx references; Q4 = onboarding time-to-hello-world; Q5 = would
+build again, Yes with caveats. The Render and Web Speech lines are marked "[to be completed after deployment]" and
+must be finished before submitting.
+
 ## Images to upload with the submission
 
 `docs/figures/web-app.png` (the simulated Alexa+ experience), `docs/figures/web-app-guard.png` (the duplicate-dose
