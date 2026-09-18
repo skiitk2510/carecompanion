@@ -148,8 +148,13 @@ a dated friction log and product feedback others can learn from.
    ship a sessionful handler in the package.
 5. Nice-to-have — Bedrock: a dedicated model-access error with a console deep link; one name for the prerequisite.
 
-**Friction log field (single line):** the URL of `docs/friction-log.md` plus "11 dated entries (task, steps,
-expected vs actual, severity, workaround, suggestion)".
+**Friction log field (single line, URL-typed — the server rejects anything but a bare URL):**
+`https://github.com/skiitk2510/carecompanion/blob/main/docs/friction-log.md`. The entry format (task, steps,
+expected vs actual, severity, workaround, suggestion) is described inside the document itself and in Feedback Q3.
+
+_Status 2026-09-18: step 3 saved on Devpost (draft 1187950, "3/5 steps done"); step 2 waits for the video URL;
+step 4 (Official Rules + Terms checkbox and the Submit button) is the submitter's click on Oct 20. Devpost states
+that a submitted project can still be edited until the deadline._
 
 **Feedback questions 1–5:** the per-tool answers are the condensed form of [product-feedback.md](product-feedback.md)
 (sections: MCP SDK v2, MCP Apps, MCP Inspector, Bedrock, Alexa+ docs, Agent Skills, Web Speech, Render). Q1 = tools
