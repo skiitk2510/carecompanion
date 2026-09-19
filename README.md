@@ -14,13 +14,14 @@ Built for the [Build, Ship, Shape: Amazon Developer Hackathon](https://amazonapp
 
 ## What ships
 
-| Piece                                    | Where                                       | What it is                                                                                                                                     |
-| ---------------------------------------- | ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| **MCP server** (Streamable HTTP + stdio) | `src/`                                      | 8 tools · 1 resource · 1 prompt on `POST\|GET\|DELETE /mcp` (spec 2025-11-25, sessionful), plus a `carecompanion-mcp` stdio binary.            |
-| **Guardrails**                           | `src/domain/guardrails/`                    | Duplicate/too-soon dose guard with explicit confirmation; informational interaction + allergy warnings; fail-safe symptom escalation.          |
-| **Dashboard MCP App**                    | `ui/` → `ui://carecompanion/dashboard.html` | The family dashboard rendered inline by MCP App hosts (Alexa+, MCP Inspector, basic-host) from the `caregiver_summary` tool.                   |
-| **Agent Skill**                          | `skills/carecompanion/SKILL.md`             | Teaches any agent the five safe workflows against the server (validated with `skills-ref`).                                                    |
-| **Simulated Alexa+ experience**          | `web/` + `src/agent/`                       | An Echo-Show-style web app with browser voice; its brain is Amazon Bedrock (Claude Haiku 4.5) calling the MCP tools through a real MCP client. |
+| Piece                                    | Where                                       | What it is                                                                                                                                                                                                                                                                              |
+| ---------------------------------------- | ------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **MCP server** (Streamable HTTP + stdio) | `src/`                                      | 8 tools · 1 resource · 1 prompt on `POST\|GET\|DELETE /mcp` (spec 2025-11-25, sessionful), plus a `carecompanion-mcp` stdio binary.                                                                                                                                                     |
+| **Guardrails**                           | `src/domain/guardrails/`                    | Duplicate/too-soon dose guard with explicit confirmation; informational interaction + allergy warnings; fail-safe symptom escalation.                                                                                                                                                   |
+| **MCP App screens**                      | `ui/` → `ui://carecompanion/dashboard.html` | One view bundle, three screens: the family dashboard (`caregiver_summary`, inline + fullscreen), the elder's today card (`get_todays_plan`) and the dose-guard card (`log_dose`, "Record anyway" needs a reason). Rendered inline by MCP App hosts (Alexa+, MCP Inspector, basic-host). |
+| **Live alerts**                          | `src/http/mcpRoutes.ts`                     | Every new alert is pushed to all open MCP sessions as `notifications/message`, so a host holding a session hears about a missed dose or a symptom without polling.                                                                                                                      |
+| **Agent Skill**                          | `skills/carecompanion/SKILL.md`             | Teaches any agent the five safe workflows against the server (validated with `skills-ref`).                                                                                                                                                                                             |
+| **Simulated Alexa+ experience**          | `web/` + `src/agent/`                       | An Echo-Show-style web app with browser voice; its brain is Amazon Bedrock (Claude Haiku 4.5) calling the MCP tools through a real MCP client.                                                                                                                                          |
 
 ## Quickstart
 
@@ -136,6 +137,10 @@ terminates the session — the same wire protocol an external host uses, visible
 
 ![The same MCP App after the view requested fullscreen from the host](docs/figures/mcp-app-fullscreen.png)
 
+![The elder's today card, rendered from the get_todays_plan result in the same view bundle](docs/figures/mcp-app-today.png)
+
+![The dose-guard card: the refusal in the guard's own words, a required reason, and "Record anyway"](docs/figures/mcp-app-dose-guard.png)
+
 Figures are reproducible: `npm run figures` drives the local Chrome through the web app and basic-host
 (`scripts/figures.mjs`).
 
@@ -240,6 +245,8 @@ validation is applied to `/mcp` only, so platform health checks on `/healthz` ke
 - [x] M3 Bedrock Converse brain over a loopback MCP client, rule-brain fallback, `/api/agent`
 - [x] M4 simulated Alexa+ web app with browser voice
 - [x] M5 dashboard MCP App view verified in basic-host (initialized, tool result delivered, auto-resize)
+- [x] Repositioning after the competitive survey: guardrails first; elder screens (today card, dose guard);
+      server-push alert notifications; Alexa+ inline/fullscreen display modes
 - [ ] M6 Agent Skill walk-through, docs, product feedback
 - [ ] M7 live deployment · M8 video · M9 submission
 

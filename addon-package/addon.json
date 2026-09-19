@@ -1,0 +1,101 @@
+{
+  "manifestVersion": "1.0",
+  "storeListing": {
+    "distributionCountries": ["US"],
+    "locales": {
+      "en-US": {
+        "default": "DEFAULT",
+        "name": {
+          "value": "CareCompanion",
+          "spokenForm": { "format": "ipa", "value": "kɛr kəmˈpænjən" }
+        },
+        "shortDescription": "Medication reminders with safety guardrails, daily check-ins with symptom escalation, and a family dashboard. Coordination and reminders, not medical advice.",
+        "fullDescription": "CareCompanion helps an older adult and their family keep track of medications and how the day is going, with safety guardrails built in.\n\nFor the person at home: ask what is on the plan today, say when you have taken a medication in your own words (\"my blood pressure pill\"), tell CareCompanion how you are feeling, or ask for help. A dose guard refuses a duplicate or too-soon dose until you explicitly confirm and give a reason, and it lets your family know. Symptoms are graded: a mild complaint is noted, an urgent one alerts your caregivers, and an emergency comes back with guidance you hear first.\n\nFor family caregivers: ask how Mom is doing this week and get a spoken summary plus the live family dashboard rendered right inside Alexa+ (adherence over 7 or 30 days, today's doses, open alerts, the check-in trend and upcoming appointments). Add a medication and CareCompanion reads back any warnings from its curated interaction and allergy list. Acknowledge or resolve alerts with a note so everyone can see who handled what.\n\nCareCompanion is a coordination and reminder tool, not medical advice. Warnings are informational; always follow the instructions of your doctor or pharmacist, and in an emergency call your local emergency number. This release runs a fictional demo household (Eleanor Whitfield, 78, and her caregivers Priya and Daniel) with synthetic data: there are no accounts and no personal data is collected. Open source under the MIT license: https://github.com/skiitk2510/carecompanion",
+        "examplePhrases": [
+          "Alexa, what's my plan today",
+          "Alexa, I took my blood pressure pill",
+          "Alexa, I'm feeling a bit dizzy",
+          "Alexa, how is Mom doing this week"
+        ],
+        "privacyAndCompliance": {
+          "privacyPolicyUrl": "https://github.com/skiitk2510/carecompanion/blob/main/addon-package/legal/privacy-policy.md",
+          "termsOfUseUrl": "https://github.com/skiitk2510/carecompanion/blob/main/addon-package/legal/terms-of-use.md"
+        },
+        "mediaAssets": {
+          "icons": {
+            "light": [
+              {
+                "size": "64x64",
+                "uri": "https://raw.githubusercontent.com/skiitk2510/carecompanion/main/addon-package/media/icon-light-64x64.png"
+              },
+              {
+                "size": "72x72",
+                "uri": "https://raw.githubusercontent.com/skiitk2510/carecompanion/main/addon-package/media/icon-light-72x72.png"
+              },
+              {
+                "size": "88x88",
+                "uri": "https://raw.githubusercontent.com/skiitk2510/carecompanion/main/addon-package/media/icon-light-88x88.png"
+              },
+              {
+                "size": "126x126",
+                "uri": "https://raw.githubusercontent.com/skiitk2510/carecompanion/main/addon-package/media/icon-light-126x126.png"
+              },
+              {
+                "size": "180x180",
+                "uri": "https://raw.githubusercontent.com/skiitk2510/carecompanion/main/addon-package/media/icon-light-180x180.png"
+              },
+              {
+                "size": "241x241",
+                "uri": "https://raw.githubusercontent.com/skiitk2510/carecompanion/main/addon-package/media/icon-light-241x241.png"
+              }
+            ],
+            "dark": [
+              {
+                "size": "64x64",
+                "uri": "https://raw.githubusercontent.com/skiitk2510/carecompanion/main/addon-package/media/icon-dark-64x64.png"
+              },
+              {
+                "size": "72x72",
+                "uri": "https://raw.githubusercontent.com/skiitk2510/carecompanion/main/addon-package/media/icon-dark-72x72.png"
+              },
+              {
+                "size": "88x88",
+                "uri": "https://raw.githubusercontent.com/skiitk2510/carecompanion/main/addon-package/media/icon-dark-88x88.png"
+              },
+              {
+                "size": "126x126",
+                "uri": "https://raw.githubusercontent.com/skiitk2510/carecompanion/main/addon-package/media/icon-dark-126x126.png"
+              },
+              {
+                "size": "180x180",
+                "uri": "https://raw.githubusercontent.com/skiitk2510/carecompanion/main/addon-package/media/icon-dark-180x180.png"
+              },
+              {
+                "size": "241x241",
+                "uri": "https://raw.githubusercontent.com/skiitk2510/carecompanion/main/addon-package/media/icon-dark-241x241.png"
+              }
+            ]
+          },
+          "carouselImages": [
+            {
+              "uri": "https://raw.githubusercontent.com/skiitk2510/carecompanion/main/addon-package/media/carousel-1-600x900.png",
+              "altText": "CareCompanion on the simulated Alexa+ device refusing a second Lisinopril dose until the elder confirms and gives a reason, beside the family caregiver dashboard.",
+              "size": "600x900"
+            }
+          ],
+          "bannerImages": []
+        }
+      }
+    }
+  },
+  "integrations": [
+    {
+      "type": "MCP",
+      "config": {
+        "endpoints": {
+          "default": { "type": "HTTPS", "uri": "https://<render-host>/mcp" }
+        }
+      }
+    }
+  ]
+}

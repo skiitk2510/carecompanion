@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="CareCompanion">
+  <!-- CareCompanion add-on icon (light variant): a pill capsule with a shield-check badge on a soft teal-to-blue tile. -->
+  <defs>
+    <linearGradient id="cc-bg" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="256" y2="256">
+      <stop offset="0" stop-color="#3EC0B1"/>
+      <stop offset="1" stop-color="#3A78DB"/>
+    </linearGradient>
+    <linearGradient id="cc-sheen" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.16"/>
+      <stop offset="0.6" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <clipPath id="cc-capsule">
+      <rect x="-80" y="-33" width="160" height="66" rx="33"/>
+    </clipPath>
+  </defs>
+
+  <!-- tile -->
+  <rect width="256" height="256" rx="58" fill="url(#cc-bg)"/>
+  <rect width="256" height="256" rx="58" fill="url(#cc-sheen)"/>
+
+  <!-- capsule: solid half + translucent half, tilted -->
+  <g transform="translate(123 121) rotate(-38)">
+    <g clip-path="url(#cc-capsule)">
+      <rect x="-80" y="-33" width="80" height="66" fill="#FFFFFF"/>
+      <rect x="0" y="-33" width="80" height="66" fill="#FFFFFF" fill-opacity="0.55"/>
+      <rect x="-1.5" y="-33" width="3" height="66" fill="#2A63B8" fill-opacity="0.35"/>
+    </g>
+  </g>
+
+  <!-- shield-check badge; the wide stroke in the tile colour knocks it out of the capsule -->
+  <path d="M181 117 L215 131 V163 C215 184 200 198 181 203 C162 198 147 184 147 163 V131 Z"
+        fill="none" stroke="url(#cc-bg)" stroke-width="12" stroke-linejoin="round"/>
+  <path d="M181 117 L215 131 V163 C215 184 200 198 181 203 C162 198 147 184 147 163 V131 Z" fill="#FFFFFF"/>
+  <path d="M166 160 L177 171 L197 148" fill="none" stroke="#2A63B8" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
