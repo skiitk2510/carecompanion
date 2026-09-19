@@ -65,8 +65,14 @@ export function createRuleBrain(): Brain {
         const medication = lastMedicationMention(input.history) ?? medicationPhrase(utterance);
         if (!medication)
           return finish('Which medication should I record? Tell me the name and why you need the extra dose.');
-        const overrideReason = reasonOf(utterance) ?? utterance;
-        const out = await call('log_dose', { medication, confirmOverride: true, overrideReason });
+        // Only a real reason clause travels with the override. A bare "yes, record it anyway" reaches the guard
+        // without one, and the guard keeps asking — the confirmation-AND-reason contract holds even offline.
+        const overrideReason = reasonOf(utterance);
+        const out = await call('log_dose', {
+          medication,
+          confirmOverride: true,
+          ...(overrideReason ? { overrideReason } : {}),
+        });
         return finish(out.text, out.structured);
       }
       if (SKIP.test(utterance)) {

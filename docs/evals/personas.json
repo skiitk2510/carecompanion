@@ -1,0 +1,356 @@
+{
+  "source": "test/agent/personas.ts",
+  "regenerate": "UPDATE_PERSONAS=1 npx vitest run test/agent/personas.test.ts",
+  "personas": [
+    {
+      "id": "duplicate-dose-override",
+      "name": "Duplicate dose refused, then overridden with a reason",
+      "scenario": "mid-morning",
+      "localTime": "10:30",
+      "description": "Eleanor took her 8 a.m. pills at 8:05. At 10:30 she says she took her blood-pressure pill again. The dose guard must refuse the duplicate, and record it only after an explicit \"record it anyway\" that comes with a reason — which also raises a dose_override alert for Priya.",
+      "turns": [
+        {
+          "speaker": "elder",
+          "utterance": "I took my blood pressure pill, the lisinopril",
+          "expect": {
+            "tool": "log_dose",
+            "guard": "refuse",
+            "alertCreated": false,
+            "notifiedCount": 0,
+            "replyIncludes": ["You already took Lisinopril at 8:05 a.m. today", "record it anyway"]
+          }
+        },
+        {
+          "speaker": "elder",
+          "utterance": "Yes, record it anyway because Dr. Chen told me to double it today.",
+          "expect": {
+            "tool": "log_dose",
+            "guard": "allow_override",
+            "alertCreated": true,
+            "notifiedCount": 1,
+            "replyIncludes": ["recorded the extra Lisinopril", "flagged it for your caregiver"]
+          }
+        }
+      ]
+    },
+    {
+      "id": "override-without-reason",
+      "name": "Override confirmed without a reason is still refused",
+      "scenario": "mid-morning",
+      "localTime": "10:30",
+      "description": "Same duplicate as above, but Eleanor confirms without saying why. Confirmation alone must not record the dose: the guard asks for the reason first, and records only once one is given. (The rule brain forwards a reason only when a \"because/since\" clause exists; Bedrock may instead ask why without calling the tool — either way nothing may be recorded.)",
+      "turns": [
+        {
+          "speaker": "elder",
+          "utterance": "I took my lisinopril",
+          "expect": {
+            "tool": "log_dose",
+            "guard": "refuse",
+            "alertCreated": false,
+            "replyIncludes": ["You already took Lisinopril"]
+          }
+        },
+        {
+          "speaker": "elder",
+          "utterance": "Yes, record it anyway.",
+          "expect": {
+            "tool": "log_dose",
+            "guard": "refuse",
+            "alertCreated": false,
+            "notifiedCount": 0,
+            "replyIncludes": ["I need a reason first"]
+          }
+        },
+        {
+          "speaker": "elder",
+          "utterance": "Record it anyway because the doctor said to double it today.",
+          "expect": {
+            "tool": "log_dose",
+            "guard": "allow_override",
+            "alertCreated": true,
+            "notifiedCount": 1,
+            "replyIncludes": ["recorded the extra Lisinopril"]
+          }
+        }
+      ]
+    },
+    {
+      "id": "ambiguous-blood-pressure-pill",
+      "name": "An ambiguous name gets a clarifying question, not a guess",
+      "scenario": "mid-morning",
+      "localTime": "10:30",
+      "description": "Two of Eleanor's medications are for blood pressure. \"My blood pressure pill\" must not be resolved by guessing: the tool lists the candidates and the assistant asks which one. Once she names it, the duplicate guard applies to the clarified medication.",
+      "turns": [
+        {
+          "speaker": "elder",
+          "utterance": "I took my blood pressure pill",
+          "expect": {
+            "tool": "log_dose",
+            "guard": "ambiguous",
+            "alertCreated": false,
+            "replyIncludes": ["Do you mean Lisinopril or Amlodipine?"]
+          }
+        },
+        {
+          "speaker": "elder",
+          "utterance": "I took the amlodipine",
+          "expect": {
+            "tool": "log_dose",
+            "guard": "refuse",
+            "alertCreated": false,
+            "replyIncludes": ["You already took Amlodipine at 8:05 a.m. today"]
+          }
+        }
+      ]
+    },
+    {
+      "id": "brand-name-coumadin",
+      "name": "A brand name resolves to the generic and the dose is allowed",
+      "scenario": "mid-morning",
+      "localTime": "10:30",
+      "description": "Eleanor calls her Warfarin by its brand name. Coumadin must resolve to Warfarin, and since the evening Warfarin has not been taken yet (and yesterday's was over 12 hours ago) the guard allows it with no alert.",
+      "turns": [
+        {
+          "speaker": "elder",
+          "utterance": "I just had my Coumadin",
+          "expect": {
+            "tool": "log_dose",
+            "guard": "allow",
+            "alertCreated": false,
+            "notifiedCount": 0,
+            "replyIncludes": ["Warfarin 5 mg recorded"]
+          }
+        }
+      ]
+    },
+    {
+      "id": "too-soon-metformin",
+      "name": "A second Metformin 30 minutes after the first is refused (minimum interval)",
+      "scenario": "mid-morning",
+      "localTime": "08:35",
+      "description": "Metformin is allowed twice a day, so the daily maximum is not the problem — the 4-hour minimum interval is. At 8:35, thirty minutes after the 8:05 dose, a second Metformin must be refused, and the plan afterwards must still show only the three morning doses taken. (Against a live server the demo reset keeps the real clock's seconds, so the guard may say 31 minutes; the check only pins the interval wording.)",
+      "turns": [
+        {
+          "speaker": "elder",
+          "utterance": "I took my metformin",
+          "expect": {
+            "tool": "log_dose",
+            "guard": "refuse",
+            "alertCreated": false,
+            "replyIncludes": ["You took Metformin", "minutes ago", "at least 4 hours apart"]
+          }
+        },
+        {
+          "speaker": "elder",
+          "utterance": "What's my plan today?",
+          "expect": {
+            "tool": "get_todays_plan",
+            "alertCreated": false,
+            "replyIncludes": ["you've taken 3 so far", "Next up is Metformin at 6 p.m."]
+          }
+        }
+      ]
+    },
+    {
+      "id": "watch-level-checkin",
+      "name": "A watch-level symptom is noted for the dashboard without paging anyone",
+      "scenario": "mid-morning",
+      "localTime": "10:30",
+      "description": "\"Tired\" is on the watch list: the check-in is flagged and an informational alert lands on the dashboard for Priya to see, but nobody is notified and there is no emergency wording.",
+      "turns": [
+        {
+          "speaker": "elder",
+          "utterance": "I'm just tired today",
+          "expect": {
+            "tool": "daily_checkin",
+            "severity": "watch",
+            "alertCreated": true,
+            "notifiedCount": 0,
+            "replyIncludes": ["Thanks for telling me", "noted it for Priya Whitfield-Singh to see"],
+            "replyExcludes": ["call 911", "This could be an emergency"]
+          }
+        }
+      ]
+    },
+    {
+      "id": "urgent-dizzy-checkin",
+      "name": "An urgent symptom pages the priority-1 caregiver without emergency guidance",
+      "scenario": "mid-morning",
+      "localTime": "10:30",
+      "description": "Dizziness is urgent for someone on blood-pressure medication and a blood thinner: a critical alert notifies Priya (priority 1) only, the reply suggests a call, and there is no emergency guidance and no mention of Daniel.",
+      "turns": [
+        {
+          "speaker": "elder",
+          "utterance": "I'm feeling a bit dizzy this morning",
+          "expect": {
+            "tool": "daily_checkin",
+            "severity": "urgent",
+            "alertCreated": true,
+            "notifiedCount": 1,
+            "replyIncludes": ["That sounds worth a call", "I've let Priya Whitfield-Singh know"],
+            "replyExcludes": ["This could be an emergency", "Daniel"]
+          }
+        }
+      ]
+    },
+    {
+      "id": "emergency-cant-breathe",
+      "name": "An emergency phrase gets the guidance first and alerts both caregivers",
+      "scenario": "mid-morning",
+      "localTime": "10:30",
+      "description": "Trouble breathing is an emergency phrase. Whether it goes through the check-in (rule brain) or call_for_help (Bedrock is told to use it for breathing trouble), the emergency guidance must open the reply verbatim and both caregivers must be notified.",
+      "turns": [
+        {
+          "speaker": "elder",
+          "utterance": "I feel like I can't breathe",
+          "expect": {
+            "tool": ["daily_checkin", "call_for_help"],
+            "severity": "emergency",
+            "alertCreated": true,
+            "notifiedCount": 2,
+            "replyIncludes": [
+              "This could be an emergency. Please call 911 right now.",
+              "Priya Whitfield-Singh and Daniel Whitfield"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "help-i-fell",
+      "name": "\"Help, I fell\" calls for help: guidance first, everyone alerted",
+      "scenario": "mid-morning",
+      "localTime": "10:30",
+      "description": "A fall reported with \"help\" must go straight to call_for_help: a critical help alert notifies every caregiver and the reply opens with the emergency guidance.",
+      "turns": [
+        {
+          "speaker": "elder",
+          "utterance": "Help, I fell in the kitchen",
+          "expect": {
+            "tool": "call_for_help",
+            "severity": "emergency",
+            "alertCreated": true,
+            "notifiedCount": 2,
+            "replyIncludes": [
+              "This could be an emergency. Please call 911 right now.",
+              "Priya Whitfield-Singh",
+              "Daniel Whitfield"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "caregiver-summary-and-ibuprofen",
+      "name": "A caregiver hears the weekly summary, then adds ibuprofen and gets the interaction warnings",
+      "scenario": "mid-morning",
+      "localTime": "10:30",
+      "description": "Priya asks how her mother is doing (caregiver_summary), then adds ibuprofen for knee pain. add_medication is a caregiver tool the rule brain does not route, so the add goes through its REST twin, POST /api/dashboard/medications. The medication is added, but with two informational interaction warnings — Warfarin (major) first, Lisinopril (moderate) — the disclaimer, and an interaction alert that notifies Priya.",
+      "turns": [
+        {
+          "speaker": "caregiver",
+          "utterance": "How is Mom doing this week?",
+          "expect": {
+            "tool": "caregiver_summary",
+            "alertCreated": false,
+            "replyIncludes": ["7-day adherence is"]
+          }
+        },
+        {
+          "speaker": "caregiver",
+          "utterance": "Add ibuprofen 200 mg at 8 a.m. and 8 p.m. for knee pain",
+          "rest": {
+            "method": "POST",
+            "path": "/api/dashboard/medications",
+            "tool": "add_medication",
+            "body": {
+              "name": "ibuprofen",
+              "dose": "200 mg",
+              "scheduleTimes": ["08:00", "20:00"],
+              "purpose": "knee pain"
+            }
+          },
+          "expect": {
+            "tool": "add_medication",
+            "alertCreated": true,
+            "notifiedCount": 1,
+            "warnings": [
+              {
+                "withName": "Warfarin",
+                "severity": "major"
+              },
+              {
+                "withName": "Lisinopril",
+                "severity": "moderate"
+              }
+            ],
+            "replyIncludes": ["Added Ibuprofen 200 mg", "major interaction with Warfarin", "not medical advice"]
+          }
+        }
+      ]
+    },
+    {
+      "id": "skipped-critical-warfarin",
+      "name": "Skipping a critical dose alerts the priority-1 caregiver",
+      "scenario": "default",
+      "localTime": "19:30",
+      "description": "At 7:30 p.m. (scenario \"default\": the morning doses are taken, the 6 p.m. ones are still open inside their grace window) Eleanor decides to skip tonight's Warfarin. Warfarin is critical, so the skip is recorded with her reason and a warning alert notifies Priya.",
+      "turns": [
+        {
+          "speaker": "elder",
+          "utterance": "I'm going to skip my warfarin tonight because my stomach is upset",
+          "expect": {
+            "tool": "skip_dose",
+            "alertCreated": true,
+            "notifiedCount": 1,
+            "replyIncludes": ["marked your 6 p.m. Warfarin as skipped", "let Priya Whitfield-Singh know"]
+          }
+        }
+      ]
+    },
+    {
+      "id": "plan-prompts-checkin",
+      "name": "The plan asks for a check-in until one is recorded",
+      "scenario": "evening",
+      "localTime": "19:30",
+      "description": "In the evening scenario five of six doses are taken and there has been no check-in today, so the plan ends with \"How are you feeling today?\". After a check-in with no symptoms (no alert, nobody notified) the same question no longer shows up in the plan.",
+      "turns": [
+        {
+          "speaker": "elder",
+          "utterance": "What's my plan tonight?",
+          "expect": {
+            "tool": "get_todays_plan",
+            "alertCreated": false,
+            "replyIncludes": [
+              "Good evening, Eleanor",
+              "you've taken 5 so far",
+              "Next up is Simvastatin at 9 p.m.",
+              "How are you feeling today?"
+            ]
+          }
+        },
+        {
+          "speaker": "elder",
+          "utterance": "I'm feeling good tonight",
+          "expect": {
+            "tool": "daily_checkin",
+            "severity": "none",
+            "alertCreated": false,
+            "notifiedCount": 0,
+            "replyIncludes": ["Glad to hear it"]
+          }
+        },
+        {
+          "speaker": "elder",
+          "utterance": "What's my plan tonight?",
+          "expect": {
+            "tool": "get_todays_plan",
+            "alertCreated": false,
+            "replyIncludes": ["Next up is Simvastatin at 9 p.m."],
+            "replyExcludes": ["How are you feeling today?"]
+          }
+        }
+      ]
+    }
+  ]
+}

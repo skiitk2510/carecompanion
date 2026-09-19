@@ -45,6 +45,25 @@ Caregiver-facing tools:
 
 Plus a resource (`carecompanion://elder/{elderId}/adherence`) and a prompt (`morning_briefing`).
 
+Around the server:
+
+- **Three MCP App screens from one view bundle**: the caregiver dashboard (inline block with a fullscreen expand,
+  per the Alexa+ design guide), the elder's today card, and the dose-guard card whose "Record anyway" needs a typed
+  reason. Rendered inline by any MCP App host.
+- **Live alerts**: every new alert is pushed to open MCP sessions as `notifications/message`, so a host holding a
+  session hears about a missed dose or a symptom without polling.
+- **A classic Alexa Skill front end**: because the Alexa+ toolkit is not available to participants (organizer
+  statement), `POST /alexa` is a real Alexa Skills Kit endpoint that runs every utterance through the same agent
+  loop and MCP tools, so Amazon's own Alexa simulator or an Echo device can drive the demo.
+- **A 20-rule live conformance probe** (`npm run verify:live`) modelled on Amazon's Local Inspector idea: session
+  lifecycle, both documented handshakes, the MCP App resource, the 500 ms round-trip budget, error semantics, CORS
+  and the Tier-1 auth checklist. Verdict on the deployed server is committed under `docs/conformance/`.
+- **An Alexa+ add-on package** (`addon-package/`: manifest, icons, carousel, privacy and terms) ready for
+  `alexa-ai new mcp` the day the toolkit opens.
+- **Persona evaluations**: scripted elders and caregivers run through the guardrails, asserting which guard fired
+  and who was notified; transcripts are committed so judges can read them.
+- **Evidence**: `docs/EVIDENCE.md` cites every impact figure from CDC, JAMA, NEJM, AARP/NAC, Pew and Amazon.
+
 ## How it works
 
 ```
