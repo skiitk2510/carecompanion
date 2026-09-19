@@ -69,6 +69,27 @@ to [friction-log.md](friction-log.md).
 - **Onboarding:** an hour, most of it deciding what belongs in `references/`.
 - **Would build on it again:** yes; see `docs/skill-walkthrough.md` for the reproducible run.
 
+## Alexa Skills Kit (classic skill): `ask-sdk-core` 2.14, `ask-sdk-express-adapter` 2.14, developer console
+
+- **What worked:** the organizers' suggestion to demo the MCP server from a classic skill is the one path that puts
+  Amazon's own Alexa in the video, and it is open to anyone with a free developer account. The SDK's handler model
+  is simple, `SkillBuilders.custom().withSkillId()` pins requests to one skill, the Express adapter does the request
+  signature and timestamp verification for a self-hosted HTTPS endpoint, session attributes carry conversation
+  history between turns, and APL renders in the console's Device Display without a device. One day from zero to
+  23 passing tests covering every demo beat.
+- **Needs work:** (1) the adapter refuses to run behind any body parser (`Do not register any parsers before using
+the adapter`), which forces a hand-assembled Express app when the same server also speaks JSON; a documented
+  "verify against `req.rawBody`" option would remove that. (2) The Node SDK's last release is from 2023 and its
+  adapter depends on `body-parser` 1.x while Express 5 ships 2.x — it works, but every install prints deprecation
+  noise. (3) `AMAZON.SearchQuery` slots need carrier phrases and the model builder rejects many natural samples with
+  terse errors; a catch-all "send the whole utterance" intent for LLM-backed skills would be the obvious modern
+  primitive. (4) The relationship between classic skills and Alexa+ is stated only as "customers on original Alexa
+  retain access"; whether a classic skill runs on an Alexa+ device is anecdotal.
+- **Onboarding:** an afternoon for the SDK and model; the console steps are ten minutes once you know the four
+  screens to visit (documented in `docs/alexa-skill.md`).
+- **Would build on it again:** yes, as the demo and test surface for any MCP server aimed at Alexa+, until the add-on
+  toolkit opens up.
+
 ## Web Speech API (Chrome)
 
 - _To be completed after the web app's voice loop is recorded (M4)._

@@ -26,6 +26,10 @@ services:
         value: bedrock
       - key: MCP_AUTH
         value: none
+      - key: ALEXA_SKILL
+        value: 'on'
+      - key: ALEXA_SKILL_ID
+        sync: false
       - key: MCP_CLIENT_ID
         sync: false
       - key: MCP_CLIENT_SECRET

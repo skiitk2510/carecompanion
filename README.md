@@ -163,6 +163,26 @@ the alert and logged — no SMS/email is sent), and the household itself (synthe
 The first request after ~15 minutes idle on the free hosting tier takes up to a minute (cold start); the app is
 otherwise stateless per session, so MCP clients simply re-initialize after a restart (`404 / -32001`).
 
+## Try it on real Alexa (classic skill)
+
+The hackathon organizers confirmed that the Alexa+ add-on toolkit and web simulator are not available to
+participants and suggested demoing "your MCP being called from" a classic Alexa Skill. CareCompanion ships one:
+`POST /alexa` is an Alexa Skills Kit endpoint (request signatures verified over the raw body) that turns intents
+back into natural utterances, runs them through the same Bedrock or rule-based loop as the web app, and answers
+with speech, a card, and an APL screen on devices with a display. Ten minutes of setup with a free Amazon developer
+account, no device needed: [docs/alexa-skill.md](docs/alexa-skill.md). In the console's Test tab:
+
+```
+open care companion
+what's my plan today
+I took my lisinopril
+yes record it anyway because the doctor told me to double it
+I'm feeling a bit dizzy
+I need help right now
+```
+
+Each turn appears in the server log as `session opened → mcp tools/call … → session closed → alexa request`.
+
 ## Onboarding to Alexa+ (optional)
 
 The server meets the [Alexa+ MCP Toolkit](https://developer.amazon.com/docs/alexaplus/add-ons/mcp-toolkit-quickstart.html)
@@ -263,6 +283,7 @@ validation is applied to `/mcp` only, so platform health checks on `/healthz` ke
 - [x] M5 dashboard MCP App view verified in basic-host (initialized, tool result delivered, auto-resize)
 - [x] Repositioning after the competitive survey: guardrails first; elder screens (today card, dose guard);
       server-push alert notifications; Alexa+ inline/fullscreen display modes
+- [x] Classic Alexa Skill front end · live conformance probe · Alexa+ add-on package · evidence document
 - [ ] M6 Agent Skill walk-through, docs, product feedback
 - [ ] M7 live deployment · M8 video · M9 submission
 
