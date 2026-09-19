@@ -90,13 +90,58 @@ export interface ActionsDeps {
   log: Logger;
 }
 
+/** Emitted whenever an alert is created (by a tool, a REST route, or a lazy sweep). Fanned out to MCP sessions. */
+export interface AlertEvent {
+  alertId: string;
+  elderId: string;
+  type: Alert['type'];
+  severity: Alert['severity'];
+  title: string;
+  detail: string;
+  createdAt: string;
+  /** Caregiver names that were (simulated-)notified. */
+  notified: string[];
+}
+
+export type AlertListener = (event: AlertEvent) => void;
+
 export class CareActions {
   private readonly store: Store;
   private readonly log: Logger;
+  private readonly listeners = new Set<AlertListener>();
 
   constructor(deps: ActionsDeps) {
     this.store = deps.store;
     this.log = deps.log.child('actions');
+  }
+
+  /** Subscribe to alert creation; returns an unsubscribe function. Listeners must not throw. */
+  onAlert(listener: AlertListener): () => void {
+    this.listeners.add(listener);
+    return () => this.listeners.delete(listener);
+  }
+
+  /** Simulated caregiver notification plus the in-process broadcast that MCP sessions relay to hosts. */
+  private announce(alert: Alert, ctx: ElderContext): string[] {
+    const notified = simulateNotify(alert, ctx.caregivers, this.log);
+    const event: AlertEvent = {
+      alertId: alert.id,
+      elderId: alert.elderId,
+      type: alert.type,
+      severity: alert.severity,
+      title: alert.title,
+      detail: alert.detail,
+      createdAt: alert.createdAt,
+      notified,
+    };
+    for (const listener of this.listeners) {
+      try {
+        listener(event);
+      } catch (err) {
+        this.log.warn('alert listener failed', { err });
+      }
+    }
+    return notified;
   }
 
   // --- context -----------------------------------------------------------------------------------
@@ -121,7 +166,7 @@ export class CareActions {
   private sweep(ctx: ElderContext): void {
     const now = this.store.now();
     const created = this.store.mutate((state) => runSweeps(state, now, ctx.tz));
-    for (const alert of created.alerts) simulateNotify(alert, ctx.caregivers, this.log);
+    for (const alert of created.alerts) this.announce(alert, ctx);
   }
 
   private activeMedications(state: Readonly<State>, elderId: string): Medication[] {
@@ -262,7 +307,7 @@ export class CareActions {
         );
         return alert;
       });
-      simulateNotify(alert, ctx.caregivers, this.log);
+      this.announce(alert, ctx);
       alertId = alert.id;
     } else {
       this.store.mutate((s) => s.doses.push(event));
@@ -330,7 +375,7 @@ export class CareActions {
         now
       ).alert;
     });
-    const names = simulateNotify(alert, ctx.caregivers, this.log);
+    const names = this.announce(alert, ctx);
     const spoken =
       `Okay, I've marked your ${spokenClockTime(slot.scheduledTime)} ${medication.name} as skipped` +
       (names.length > 0 ? ` and let ${joinSpoken(names)} know.` : '.');
@@ -374,7 +419,7 @@ export class CareActions {
       s.checkIns.push(checkIn);
       return escalation.alertSpec ? createAlert(s, { ...escalation.alertSpec, refId: checkIn.id }, now).alert : null;
     });
-    const notified = alert ? simulateNotify(alert, ctx.caregivers, this.log) : [];
+    const notified = alert ? this.announce(alert, ctx) : [];
     this.log.info('check-in recorded', { mood: checkIn.mood, severity: checkIn.severity });
     const result: DailyCheckinResult = {
       checkInId: checkIn.id,
@@ -408,7 +453,7 @@ export class CareActions {
       notified: this.priorityIds(ctx, true),
     };
     const alert = this.store.mutate((s) => createAlert(s, spec, now).alert);
-    const notified = simulateNotify(alert, ctx.caregivers, this.log);
+    const notified = this.announce(alert, ctx);
     const emergencyGuidance =
       escalation.emergencyGuidance ??
       `This could be an emergency. Please call ${ctx.household.emergencyNumber} right now. I'm alerting ${joinSpoken(notified)}.`;
@@ -481,7 +526,7 @@ export class CareActions {
         now
       ).alert;
     });
-    if (alert) simulateNotify(alert, ctx.caregivers, this.log);
+    if (alert) this.announce(alert, ctx);
 
     const parts = [
       endSentence(`Added ${name} ${medication.dose} at ${joinSpoken(scheduleTimes.map(spokenClockTime))}`),

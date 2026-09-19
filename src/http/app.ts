@@ -89,7 +89,11 @@ export function createApp(deps: AppDeps): CareCompanionApp {
     log.info('MCP auth enabled', { mode: config.mcpAuth, issuer: config.publicUrl, resource: credentials.resource });
   }
 
-  const mcp = mountMcpRoutes(app, { log, serverFactory: deps.serverFactory });
+  const mcp = mountMcpRoutes(app, {
+    log,
+    serverFactory: deps.serverFactory,
+    ...(deps.actions ? { alerts: deps.actions } : {}),
+  });
   if (deps.agent) mountAgentRoutes(app, deps.agent, log, config.agentRatePerMin);
   if (deps.actions) {
     mountDashboardRoutes(app, deps.actions, log);

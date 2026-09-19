@@ -32,7 +32,11 @@ export const SERVER_INSTRUCTIONS = [
  * binary exactly one. Shared state (the store) lives behind `deps.actions`, never in here.
  */
 export function buildServer(deps: ServerDeps): McpServer {
-  const server = new McpServer({ name: SERVER_NAME, version: APP_VERSION }, { instructions: SERVER_INSTRUCTIONS });
+  // `logging` lets the server push alert notifications (notifications/message) to hosts holding an open session.
+  const server = new McpServer(
+    { name: SERVER_NAME, version: APP_VERSION },
+    { instructions: SERVER_INSTRUCTIONS, capabilities: { logging: {} } }
+  );
   registerElderTools(server, deps.actions, deps.log);
   registerCaregiverTools(server, deps.actions, deps.log);
   registerDashboard(server, deps.actions, deps.log, deps.uiHtml ?? uiHtml);

@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import type { Express, Request, Response } from 'express';
 import { NodeStreamableHTTPServerTransport } from '@modelcontextprotocol/node';
 import { isInitializeRequest, type McpServer } from '@modelcontextprotocol/server';
+import type { AlertEvent } from '../domain/actions.js';
 import type { Logger } from '../log.js';
 
 export interface McpRouteDeps {
@@ -11,6 +12,8 @@ export interface McpRouteDeps {
   sessionIdleMs?: number;
   /** SSE keep-alive interval for open streams. Default 15 s. */
   keepAliveMs?: number;
+  /** Alert source; every new alert is pushed to all open sessions as a `notifications/message`. */
+  alerts?: { onAlert(listener: (event: AlertEvent) => void): () => void };
 }
 
 interface Session {
@@ -88,6 +91,19 @@ export function mountMcpRoutes(app: Express, deps: McpRouteDeps): McpRoutes {
   app.get('/mcp', route);
   app.delete('/mcp', route);
 
+  // Server-initiated notifications: a host that keeps its session open (GET stream) hears about new alerts as
+  // they happen — the family dashboard can refresh instead of polling, and a voice host can mention them.
+  const unsubscribe = deps.alerts?.onAlert((event) => {
+    if (sessions.size === 0) return;
+    const level = event.severity === 'critical' ? 'error' : event.severity === 'warning' ? 'warning' : 'info';
+    for (const [id, session] of sessions) {
+      session.server
+        .sendLoggingMessage({ level, logger: 'carecompanion.alerts', data: event })
+        .catch((err: unknown) => log.debug('alert push skipped', { id, err }));
+    }
+    log.info('alert pushed to sessions', { alert: event.alertId, sessions: sessions.size });
+  });
+
   const sweep = setInterval(() => {
     const cutoff = Date.now() - idleMs;
     for (const [id, session] of sessions) {
@@ -103,6 +119,7 @@ export function mountMcpRoutes(app: Express, deps: McpRouteDeps): McpRoutes {
     sessions,
     close: async () => {
       clearInterval(sweep);
+      unsubscribe?.();
       await Promise.all([...sessions.values()].map((s) => s.transport.close()));
     },
   };
