@@ -1,0 +1,71 @@
+{
+  "manifest": {
+    "manifestVersion": "1.0",
+    "publishingInformation": {
+      "locales": {
+        "en-US": {
+          "name": "CareCompanion",
+          "summary": "Medication reminders with safety guardrails, daily check-ins and family alerts for one household.",
+          "description": "CareCompanion is a voice front end for an eldercare-coordination MCP server. Ask for today's medication plan, log what you took, say how you are feeling, or call for help. A duplicate-dose guard refuses a second dose until you confirm and give a reason, and tells your caregiver. Symptoms you mention are triaged; urgent ones alert your caregiver right away, and 'I need help' alerts everyone and speaks emergency guidance first. Caregivers can ask for the weekly summary. Coordination and reminders only, not medical advice. The demo household (Eleanor Whitfield and her family) is synthetic data that resets on every restart.",
+          "examplePhrases": [
+            "Alexa, open care companion",
+            "Alexa, ask care companion what's my plan today",
+            "Alexa, tell care companion I took my lisinopril"
+          ],
+          "keywords": ["eldercare", "medication", "reminders", "caregiver", "safety", "guardrails", "MCP"]
+        }
+      },
+      "isAvailableWorldwide": false,
+      "distributionCountries": ["US"],
+      "testingInstructions": "Development-stage demo backed by a hosted MCP server (synthetic household, no account linking). Say 'open care companion', then: 'what's my plan today'; 'I took my lisinopril' (the duplicate-dose guard refuses); 'yes record it anyway because the doctor told me to double it'; 'I'm feeling a bit dizzy' (caregiver alerted); 'I need help' (emergency guidance spoken first). Not medical advice.",
+      "category": "HEALTH_AND_FITNESS"
+    },
+    "apis": {
+      "custom": {
+        "endpoint": {
+          "uri": "https://REPLACE-WITH-YOUR-RENDER-HOST.onrender.com/alexa",
+          "sslCertificateType": "Wildcard"
+        },
+        "interfaces": [
+          {
+            "type": "ALEXA_PRESENTATION_APL",
+            "supportedViewports": [
+              { "mode": "HUB", "shape": "ROUND", "minWidth": 100, "maxWidth": 599, "minHeight": 100, "maxHeight": 599 },
+              {
+                "mode": "HUB",
+                "shape": "RECTANGLE",
+                "minWidth": 600,
+                "maxWidth": 1279,
+                "minHeight": 100,
+                "maxHeight": 799
+              },
+              {
+                "mode": "HUB",
+                "shape": "RECTANGLE",
+                "minWidth": 1280,
+                "maxWidth": 2560,
+                "minHeight": 600,
+                "maxHeight": 1440
+              },
+              {
+                "mode": "TV",
+                "shape": "RECTANGLE",
+                "minWidth": 960,
+                "maxWidth": 1920,
+                "minHeight": 540,
+                "maxHeight": 1080
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "privacyAndCompliance": {
+      "allowsPurchases": false,
+      "usesPersonalInfo": false,
+      "isChildDirected": false,
+      "isExportCompliant": true,
+      "containsAds": false
+    }
+  }
+}

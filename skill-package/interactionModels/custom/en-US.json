@@ -1,0 +1,238 @@
+{
+  "interactionModel": {
+    "languageModel": {
+      "invocationName": "care companion",
+      "intents": [
+        { "name": "AMAZON.CancelIntent", "samples": [] },
+        { "name": "AMAZON.HelpIntent", "samples": [] },
+        { "name": "AMAZON.StopIntent", "samples": [] },
+        { "name": "AMAZON.NavigateHomeIntent", "samples": [] },
+        { "name": "AMAZON.FallbackIntent", "samples": [] },
+        {
+          "name": "PlanIntent",
+          "slots": [],
+          "samples": [
+            "what's my plan today",
+            "what's my plan",
+            "what's my plan for today",
+            "what do I take today",
+            "what do I take",
+            "what do I take next",
+            "morning briefing",
+            "give me my morning briefing",
+            "what's next",
+            "what's next today",
+            "what's my schedule today",
+            "what medications do I have today",
+            "what pills do I take today",
+            "did I miss anything today",
+            "what does my day look like",
+            "today's plan",
+            "my plan"
+          ]
+        },
+        {
+          "name": "TookIntent",
+          "slots": [{ "name": "medication", "type": "MEDICATION_NAME" }],
+          "samples": [
+            "I took my {medication}",
+            "I just took my {medication}",
+            "I just took {medication}",
+            "I took {medication}",
+            "I took the {medication}",
+            "I've taken my {medication}",
+            "I have taken my {medication}",
+            "I had my {medication}",
+            "I already took my {medication}",
+            "I took my {medication} just now",
+            "log my {medication}",
+            "record my {medication}",
+            "mark my {medication} as taken"
+          ]
+        },
+        {
+          "name": "OverrideIntent",
+          "slots": [{ "name": "reason", "type": "AMAZON.SearchQuery" }],
+          "samples": [
+            "yes record it anyway because {reason}",
+            "record it anyway because {reason}",
+            "yes record it anyway {reason}",
+            "record it anyway {reason}",
+            "go ahead and record it because {reason}",
+            "yes go ahead and record it because {reason}",
+            "yes I'm sure record it because {reason}",
+            "record it because {reason}",
+            "yes record it anyway",
+            "record it anyway",
+            "yes go ahead and record it",
+            "go ahead and record it"
+          ]
+        },
+        {
+          "name": "SkipIntent",
+          "slots": [{ "name": "medication", "type": "MEDICATION_NAME" }],
+          "samples": [
+            "skip my {medication}",
+            "skip the {medication}",
+            "skip {medication}",
+            "I'm skipping my {medication}",
+            "I'm going to skip my {medication}",
+            "I want to skip my {medication}",
+            "I won't take my {medication} today",
+            "I'm not taking my {medication} today",
+            "I'll skip my {medication} tonight",
+            "I'm not going to take my {medication}"
+          ]
+        },
+        {
+          "name": "FeelingIntent",
+          "slots": [{ "name": "feeling", "type": "AMAZON.SearchQuery" }],
+          "samples": [
+            "I'm feeling {feeling}",
+            "I am feeling {feeling}",
+            "I feel {feeling}",
+            "today I feel {feeling}",
+            "I'm feeling {feeling} today",
+            "I feel {feeling} today",
+            "I feel {feeling} this morning",
+            "I've been feeling {feeling}",
+            "I'm doing {feeling}",
+            "I'm feeling a bit {feeling}",
+            "I feel a little {feeling}",
+            "my check in is {feeling}",
+            "for my check in I feel {feeling}"
+          ]
+        },
+        {
+          "name": "CallForHelpIntent",
+          "slots": [],
+          "samples": [
+            "I need help",
+            "I need help right now",
+            "help I fell",
+            "help I need help",
+            "I fell",
+            "I've fallen",
+            "I fell down",
+            "I have fallen and I can't get up",
+            "call for help",
+            "get help",
+            "send help",
+            "I can't breathe",
+            "I'm having chest pain",
+            "I have chest pain",
+            "something is wrong",
+            "alert my family",
+            "tell my family I need help",
+            "I think I'm having a stroke"
+          ]
+        },
+        {
+          "name": "CaregiverSummaryIntent",
+          "slots": [],
+          "samples": [
+            "how is mom doing",
+            "how is mom doing this week",
+            "how is Eleanor doing this week",
+            "how is Eleanor doing",
+            "how is she doing this week",
+            "how did mom do this week",
+            "how has mom been this week",
+            "how is her adherence",
+            "caregiver summary",
+            "give me the caregiver summary",
+            "give me the weekly summary",
+            "weekly summary",
+            "the weekly summary"
+          ]
+        },
+        {
+          "name": "AnythingIntent",
+          "slots": [{ "name": "query", "type": "AMAZON.SearchQuery" }],
+          "samples": [
+            "tell it {query}",
+            "tell the assistant {query}",
+            "say {query}",
+            "ask {query}",
+            "ask it {query}",
+            "ask about {query}",
+            "I want to say {query}",
+            "I'd like to say {query}",
+            "my question is {query}",
+            "I have a question {query}"
+          ]
+        }
+      ],
+      "types": [
+        {
+          "name": "MEDICATION_NAME",
+          "values": [
+            {
+              "id": "lisinopril",
+              "name": {
+                "value": "lisinopril",
+                "synonyms": ["lisinopril pill", "lisinopril tablet", "zestril", "prinivil"]
+              }
+            },
+            {
+              "id": "amlodipine",
+              "name": { "value": "amlodipine", "synonyms": ["amlodipine pill", "amlodipine tablet", "norvasc"] }
+            },
+            {
+              "id": "metformin",
+              "name": {
+                "value": "metformin",
+                "synonyms": ["metformin pill", "metformin tablet", "glucophage", "diabetes pill", "diabetes medication"]
+              }
+            },
+            {
+              "id": "warfarin",
+              "name": { "value": "warfarin", "synonyms": ["warfarin pill", "warfarin tablet"] }
+            },
+            {
+              "id": "coumadin",
+              "name": { "value": "coumadin", "synonyms": ["coumadin pill", "jantoven"] }
+            },
+            {
+              "id": "simvastatin",
+              "name": {
+                "value": "simvastatin",
+                "synonyms": ["simvastatin pill", "zocor", "statin", "cholesterol pill", "cholesterol medication"]
+              }
+            },
+            {
+              "id": "ibuprofen",
+              "name": { "value": "ibuprofen", "synonyms": ["advil", "motrin", "painkiller", "pain pill"] }
+            },
+            {
+              "id": "blood_pressure_pill",
+              "name": {
+                "value": "blood pressure pill",
+                "synonyms": [
+                  "blood pressure medication",
+                  "blood pressure medicine",
+                  "blood pressure tablet",
+                  "pressure pill"
+                ]
+              }
+            },
+            {
+              "id": "sugar_pill",
+              "name": {
+                "value": "sugar pill",
+                "synonyms": ["blood sugar pill", "sugar medication", "blood sugar medication"]
+              }
+            },
+            {
+              "id": "blood_thinner",
+              "name": {
+                "value": "blood thinner",
+                "synonyms": ["blood thinner pill", "blood thinner medication", "thinner"]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

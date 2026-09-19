@@ -3,6 +3,7 @@ import type { AddressInfo } from 'node:net';
 import { createBedrockBrain, type ConverseFn } from '../../src/agent/bedrockBrain.js';
 import { createRuleBrain } from '../../src/agent/ruleBrain.js';
 import { AgentService } from '../../src/agent/service.js';
+import { createAlexaHandlers } from '../../src/alexa/skill.js';
 import { issueToken } from '../../src/auth/clientCredentials.js';
 import { loadConfig } from '../../src/config.js';
 import { clientCredentialsConfig } from '../../src/http/authRoutes.js';
@@ -76,7 +77,14 @@ export async function startTestServer(opts: TestServerOptions = {}): Promise<Tes
     ...(credentials ? { mcpAuthToken: () => issueToken(credentials, 'carecompanion-agent', 300) } : {}),
   });
 
-  const app = createApp({ config, log, serverFactory: () => buildServer({ log, actions }), agent, actions });
+  const app = createApp({
+    config,
+    log,
+    serverFactory: () => buildServer({ log, actions }),
+    agent,
+    actions,
+    alexa: createAlexaHandlers({ agent, config, log }),
+  });
   const server = await new Promise<Server>((resolve) => {
     const s = app.app.listen(0, '127.0.0.1', () => resolve(s));
   });
