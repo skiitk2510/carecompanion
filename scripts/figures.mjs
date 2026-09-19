@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Captures the README / Devpost figures from a running server and the ext-apps basic-host with the local Chrome.
 // Usage: node scripts/figures.mjs   (env: WEB_URL, HOST_URL, DEMO_RESET_TOKEN, CHROME)
-/* global document */ // the evaluate()/waitForFunction() callbacks below run inside the browser page
+/* global document, HTMLTextAreaElement */ // evaluate()/waitForFunction() callbacks run inside the browser page
 import { mkdir } from 'node:fs/promises';
 import puppeteer from 'puppeteer-core';
 
@@ -100,6 +100,43 @@ try {
   await new Promise((r) => setTimeout(r, 800));
   await host.screenshot({ path: `${OUT}/mcp-app-fullscreen.png` });
   console.log('wrote mcp-app-fullscreen.png');
+
+  // 5. The elder-facing screens: today's plan and the dose guard, from the same view bundle.
+  const closePanels = () =>
+    host.evaluate(() => {
+      for (const b of [...document.querySelectorAll('button')]) if (b.textContent.trim() === '×') b.click();
+    });
+  const callHostTool = (name, input) =>
+    host.evaluate(
+      (toolName, json) => {
+        const select = [...document.querySelectorAll('select')].find((s) =>
+          [...s.options].some((o) => o.value === toolName)
+        );
+        select.value = toolName;
+        select.dispatchEvent(new Event('change', { bubbles: true }));
+        const area = document.querySelector('textarea');
+        const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value').set;
+        setter.call(area, json);
+        area.dispatchEvent(new Event('input', { bubbles: true }));
+        document.querySelector('form')?.requestSubmit();
+      },
+      name,
+      JSON.stringify(input)
+    );
+
+  await closePanels();
+  await callHostTool('get_todays_plan', {});
+  await frameWith('.cc-elder', 25_000);
+  await new Promise((r) => setTimeout(r, 800));
+  await host.screenshot({ path: `${OUT}/mcp-app-today.png` });
+  console.log('wrote mcp-app-today.png');
+
+  await closePanels();
+  await callHostTool('log_dose', { medication: 'lisinopril' });
+  await frameWith('.cc-elder--guard', 25_000);
+  await new Promise((r) => setTimeout(r, 800));
+  await host.screenshot({ path: `${OUT}/mcp-app-dose-guard.png` });
+  console.log('wrote mcp-app-dose-guard.png');
 } finally {
   await browser.close();
 }

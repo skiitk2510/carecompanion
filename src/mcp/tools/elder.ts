@@ -1,7 +1,12 @@
+import { registerAppTool } from '@modelcontextprotocol/ext-apps/server';
 import type { McpServer } from '@modelcontextprotocol/server';
 import type { CareActions } from '../../domain/actions.js';
 import type { Logger } from '../../log.js';
 import { run } from '../result.js';
+import { DASHBOARD_URI } from './dashboard.js';
+
+/** Elder-facing tools that also render a screen on MCP App hosts (Echo Show-class devices): same view bundle. */
+const ELDER_VIEW = { ui: { resourceUri: DASHBOARD_URI, visibility: ['model', 'app'] as ['model', 'app'] } };
 import {
   CallForHelpInput,
   CallForHelpOutput,
@@ -17,7 +22,8 @@ import {
 
 /** The five tools an elder drives by voice. Every result's text is written to be spoken aloud. */
 export function registerElderTools(server: McpServer, actions: CareActions, log: Logger): void {
-  server.registerTool(
+  registerAppTool(
+    server,
     'get_todays_plan',
     {
       title: "Today's plan",
@@ -26,11 +32,13 @@ export function registerElderTools(server: McpServer, actions: CareActions, log:
       inputSchema: GetTodaysPlanInput,
       outputSchema: GetTodaysPlanOutput,
       annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
+      _meta: ELDER_VIEW,
     },
     async ({ elderId }) => run(log, 'get_todays_plan', () => actions.todaysPlan(elderId))
   );
 
-  server.registerTool(
+  registerAppTool(
+    server,
     'log_dose',
     {
       title: 'Log a dose',
@@ -42,6 +50,7 @@ export function registerElderTools(server: McpServer, actions: CareActions, log:
       inputSchema: LogDoseInput,
       outputSchema: LogDoseOutput,
       annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
+      _meta: ELDER_VIEW,
     },
     async (args) => run(log, 'log_dose', () => actions.logDose(args))
   );

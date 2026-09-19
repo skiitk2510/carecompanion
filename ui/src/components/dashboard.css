@@ -1269,3 +1269,76 @@
     align-items: start;
   }
 }
+
+/* --- Elder-facing screens (get_todays_plan / log_dose results on a device with a display) ------------------- */
+/* Custom properties resolve where they are declared, so the elder screens carry their own (larger) unit. */
+.cc-elder {
+  --cc-eu: 4.5px;
+  display: flex;
+  flex-direction: column;
+  gap: calc(4 * var(--cc-eu));
+  font-size: calc(4.25 * var(--cc-eu));
+  line-height: 1.45;
+  color: var(--cc-text);
+}
+.cc-elder__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: calc(4 * var(--cc-eu));
+}
+.cc-elder__title {
+  margin: 0;
+  font-size: calc(6 * var(--cc-eu));
+  font-weight: var(--cc-weight-semibold);
+  line-height: 1.2;
+}
+.cc-elder__sub {
+  margin: calc(1 * var(--cc-eu)) 0 0;
+  color: var(--cc-text-2);
+  font-size: calc(3.5 * var(--cc-eu));
+}
+.cc-elder__kicker {
+  margin: 0;
+  font-size: calc(3 * var(--cc-eu));
+  font-weight: var(--cc-weight-semibold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--cc-danger);
+}
+.cc-elder__big {
+  margin: 0;
+  font-size: calc(6 * var(--cc-eu));
+  font-weight: var(--cc-weight-semibold);
+  line-height: 1.25;
+}
+.cc-elder__spoken {
+  margin: 0;
+  padding: calc(4 * var(--cc-eu));
+  border-left: 4px solid var(--cc-accent);
+  background: var(--cc-accent-wash);
+  border-radius: var(--cc-radius-sm);
+}
+.cc-elder--guard .cc-elder__spoken {
+  border-left-color: var(--cc-danger);
+  background: var(--cc-danger-wash);
+}
+.cc-elder--ok .cc-elder__spoken {
+  border-left-color: var(--cc-success);
+  background: var(--cc-success-wash);
+}
+.cc-elder__choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(3 * var(--cc-eu));
+}
+.cc-elder__choices .cc-btn {
+  min-height: calc(14 * var(--cc-eu));
+  font-size: calc(4.5 * var(--cc-eu));
+  padding: 0 calc(6 * var(--cc-eu));
+}
+.cc-elder__note {
+  margin: calc(2 * var(--cc-eu)) 0 0;
+  color: var(--cc-text-2);
+  font-size: calc(3.5 * var(--cc-eu));
+}

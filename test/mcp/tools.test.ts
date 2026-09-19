@@ -40,10 +40,13 @@ describe('MCP tool surface (8 tools · 1 resource · 1 prompt) over the SDK clie
 
   it('caregiver_summary is the MCP App tool: ui:// resource, text fallback and the DashboardData payload', async () => {
     const { tools } = await client.listTools();
-    const summary = tools.find((t) => t.name === 'caregiver_summary');
-    expect((summary?._meta as { ui?: { resourceUri?: string } } | undefined)?.ui?.resourceUri).toBe(
-      'ui://carecompanion/dashboard.html'
-    );
+    const uriOf = (name: string) =>
+      (tools.find((t) => t.name === name)?._meta as { ui?: { resourceUri?: string } } | undefined)?.ui?.resourceUri;
+    // Three tools render screens from the same view bundle: the caregiver dashboard, the today card, the dose guard.
+    expect(uriOf('caregiver_summary')).toBe('ui://carecompanion/dashboard.html');
+    expect(uriOf('get_todays_plan')).toBe('ui://carecompanion/dashboard.html');
+    expect(uriOf('log_dose')).toBe('ui://carecompanion/dashboard.html');
+    expect(uriOf('daily_checkin')).toBeUndefined();
 
     const { resources } = await client.listResources();
     expect(resources.map((r) => r.uri)).toContain('ui://carecompanion/dashboard.html');
