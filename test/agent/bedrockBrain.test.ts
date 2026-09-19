@@ -7,14 +7,14 @@ import { scriptedBedrock, textOutput, toolUseOutput } from '../helpers/scriptedB
 
 const context: ConversationContext = {
   speaker: 'elder',
-  elderName: 'Margaret Hart',
-  preferredName: 'Margaret',
+  elderName: 'Eleanor Whitfield',
+  preferredName: 'Eleanor',
   age: 78,
   emergencyNumber: '911',
   localDate: '2026-09-16',
   localTime: '10:30',
   tz: 'America/Los_Angeles',
-  caregiverNames: ['Priya Hart-Singh', 'Daniel Hart'],
+  caregiverNames: ['Priya Whitfield-Singh', 'Daniel Whitfield'],
 };
 
 function fakeTools(
@@ -47,15 +47,15 @@ describe('bedrock brain — Converse tool-use loop', () => {
   it('runs one tool round, feeds the result back in a user turn, and returns the final text', async () => {
     const bedrock = scriptedBedrock([
       toolUseOutput([{ id: 'tu-1', name: 'get_todays_plan' }]),
-      textOutput('Good morning Margaret. Six doses today; next up is Metformin at 6 p.m.'),
+      textOutput('Good morning Eleanor. Six doses today; next up is Metformin at 6 p.m.'),
     ]);
-    const tools = fakeTools({ get_todays_plan: () => ({ text: 'Good morning, Margaret. You have 6 doses today.' }) });
+    const tools = fakeTools({ get_todays_plan: () => ({ text: 'Good morning, Eleanor. You have 6 doses today.' }) });
 
     const res = await brainWith(bedrock.converse).respond({
       request: { utterance: 'what do I take today', speaker: 'elder' },
       history: [
         { role: 'user', text: 'hi' },
-        { role: 'assistant', text: 'Hello Margaret.' },
+        { role: 'assistant', text: 'Hello Eleanor.' },
       ],
       context,
       tools,
@@ -69,7 +69,7 @@ describe('bedrock brain — Converse tool-use loop', () => {
     expect(bedrock.calls).toHaveLength(2);
     const first = bedrock.calls[0]!;
     expect(first.modelId).toBe('test-model');
-    expect(first.system?.[0]?.text).toContain('Margaret Hart');
+    expect(first.system?.[0]?.text).toContain('Eleanor Whitfield');
     expect(first.system?.[0]?.text).toContain('requiresConfirmation=true');
     expect(first.toolConfig?.tools?.map((t) => t.toolSpec?.name)).toEqual(['get_todays_plan']);
     expect(first.messages?.map((m) => m.role)).toEqual(['user', 'assistant', 'user']); // history + utterance
@@ -80,7 +80,7 @@ describe('bedrock brain — Converse tool-use loop', () => {
     const block = last?.content?.[0] as ContentBlock.ToolResultMember;
     expect(block.toolResult.toolUseId).toBe('tu-1');
     expect(block.toolResult.status).toBe('success');
-    expect(block.toolResult.content?.[0]).toEqual({ text: 'Good morning, Margaret. You have 6 doses today.' });
+    expect(block.toolResult.content?.[0]).toEqual({ text: 'Good morning, Eleanor. You have 6 doses today.' });
   });
 
   it('executes parallel tool uses and returns ALL results in one user message, marking errors', async () => {

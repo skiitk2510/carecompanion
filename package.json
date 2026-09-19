@@ -54,6 +54,8 @@
     "@modelcontextprotocol/ext-apps": "^2.0.0",
     "@modelcontextprotocol/node": "^2.0.0",
     "@modelcontextprotocol/server": "^2.0.0",
+    "ask-sdk-core": "^2.14.0",
+    "ask-sdk-express-adapter": "^2.14.0",
     "cors": "^2.8.6",
     "express": "^5.2.1",
     "react": "^19.3.0",

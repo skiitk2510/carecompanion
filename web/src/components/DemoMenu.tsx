@@ -201,7 +201,7 @@ export function DemoMenu({ agentStatus, onReset }: DemoMenuProps) {
             </p>
           )}
           <p className="mt-3 text-xs text-slate-500">
-            A reset re-seeds the Hart household at that moment and clears the transcript.
+            A reset re-seeds the Whitfield household at that moment and clears the transcript.
           </p>
         </div>
       )}

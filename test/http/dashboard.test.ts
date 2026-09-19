@@ -38,7 +38,7 @@ describe('REST routes for the web app (dashboard + demo controls)', () => {
       `${srv.baseUrl}/api/dashboard/alerts/${alert.id}`,
       { caregiverId: 'cg_daniel', action: 'resolve', resolution: 'Spoke to Mom, all good.' }
     );
-    expect(resolved.json).toMatchObject({ changed: true, alert: { resolvedBy: 'Daniel Hart' } });
+    expect(resolved.json).toMatchObject({ changed: true, alert: { resolvedBy: 'Daniel Whitfield' } });
 
     const missing = await postJson<{ error: string }>(`${srv.baseUrl}/api/dashboard/alerts/alert_nope`, {
       caregiverId: 'cg_daniel',

@@ -53,7 +53,7 @@ describe('MCP tool surface (8 tools · 1 resource · 1 prompt) over the SDK clie
 
     const res = await client.callTool({ name: 'caregiver_summary', arguments: {} });
     expect(res.isError).toBeFalsy();
-    expect(text(res)).toMatch(/Margaret's 7-day adherence is \d+ percent/);
+    expect(text(res)).toMatch(/Eleanor's 7-day adherence is \d+ percent/);
     const dashboard = data<DashboardData>(res);
     expect(dashboard.todaysDoses).toHaveLength(6);
     expect(dashboard.todaysDoses.filter((d) => d.status === 'taken')).toHaveLength(3);
@@ -66,7 +66,7 @@ describe('MCP tool surface (8 tools · 1 resource · 1 prompt) over the SDK clie
 
   it('get_todays_plan speaks the day and points at the next dose', async () => {
     const res = await client.callTool({ name: 'get_todays_plan', arguments: {} });
-    expect(text(res)).toContain('Good morning, Margaret.');
+    expect(text(res)).toContain('Good morning, Eleanor.');
     expect(text(res)).toContain('Next up is Metformin at 6 p.m.');
     expect(text(res)).toContain('Physical therapy is tomorrow at 2 p.m.');
     expect(text(res)).not.toContain('..');
@@ -136,7 +136,7 @@ describe('MCP tool surface (8 tools · 1 resource · 1 prompt) over the SDK clie
     const e = data<{ severity: string; notified: string[]; emergencyGuidance?: string; alertIds: string[] }>(emergency);
     expect(e.severity).toBe('emergency');
     expect(e.emergencyGuidance).toMatch(/^This could be an emergency\. Please call 911 right now\./);
-    expect(e.notified).toEqual(['Priya Hart-Singh', 'Daniel Hart']);
+    expect(e.notified).toEqual(['Priya Whitfield-Singh', 'Daniel Whitfield']);
     expect(text(emergency)).toBe(e.emergencyGuidance);
 
     const help = await client.callTool({ name: 'call_for_help', arguments: { message: 'I fell in the kitchen' } });
@@ -183,7 +183,7 @@ describe('MCP tool surface (8 tools · 1 resource · 1 prompt) over the SDK clie
     });
     expect(data<{ changed: boolean; alert: { resolvedBy: string | null } }>(resolved)).toMatchObject({
       changed: true,
-      alert: { resolvedBy: 'Priya Hart-Singh' },
+      alert: { resolvedBy: 'Priya Whitfield-Singh' },
     });
 
     const missing = await client.callTool({
@@ -207,9 +207,9 @@ describe('MCP tool surface (8 tools · 1 resource · 1 prompt) over the SDK clie
     const { resourceTemplates } = await client.listResourceTemplates();
     expect(resourceTemplates.map((t) => t.uriTemplate)).toContain('carecompanion://elder/{elderId}/adherence');
     const { resources } = await client.listResources();
-    expect(resources.map((r) => r.uri)).toContain('carecompanion://elder/elder_margaret/adherence');
+    expect(resources.map((r) => r.uri)).toContain('carecompanion://elder/elder_eleanor/adherence');
 
-    const read = await client.readResource({ uri: 'carecompanion://elder/elder_margaret/adherence' });
+    const read = await client.readResource({ uri: 'carecompanion://elder/elder_eleanor/adherence' });
     const report = JSON.parse(resourceText(read.contents)) as {
       windows: Record<'7' | '30', { due: number; rate: number | null }>;
     };

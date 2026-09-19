@@ -94,8 +94,8 @@ export function App() {
   }, [refreshAgentStatus]);
 
   const { refresh: refreshDashboard } = dashboard;
-  const elderName = dashboard.data?.elder.preferredName ?? 'Margaret';
-  const caregiverName = dashboard.data?.caregivers.find((c) => c.id === caregiverId)?.name ?? 'Priya Hart-Singh';
+  const elderName = dashboard.data?.elder.preferredName ?? 'Eleanor';
+  const caregiverName = dashboard.data?.caregivers.find((c) => c.id === caregiverId)?.name ?? 'Priya Whitfield-Singh';
   const caregiverFirstName = caregiverName.split(' ')[0] ?? caregiverName;
 
   const run = useCallback(

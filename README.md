@@ -43,7 +43,7 @@ npm test               # 160+ tests: guardrails, seed, MCP tools over the SDK cl
 ```
 
 Local MCP hosts can use stdio instead: `node dist/server/bin/stdio.js`. Opening the repository in Claude Code gives
-you both the server (`.mcp.json`) and the Agent Skill (`.claude/skills/carecompanion`) — ask for "Margaret's morning
+you both the server (`.mcp.json`) and the Agent Skill (`.claude/skills/carecompanion`) — ask for "Eleanor's morning
 briefing" and watch the tools run; [docs/skill-walkthrough.md](docs/skill-walkthrough.md) has the full script.
 
 Copy `.env.example` to `.env` to change the household timezone, seed behaviour, Bedrock settings or the demo

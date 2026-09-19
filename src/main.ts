@@ -2,6 +2,7 @@ import { createBedrockBrain } from './agent/bedrockBrain.js';
 import { createConverse } from './agent/bedrockClient.js';
 import { createRuleBrain } from './agent/ruleBrain.js';
 import { AgentService } from './agent/service.js';
+import { createAlexaHandlers } from './alexa/skill.js';
 import { issueToken } from './auth/clientCredentials.js';
 import { loadConfig } from './config.js';
 import { clientCredentialsConfig } from './http/authRoutes.js';
@@ -47,6 +48,7 @@ const { app, close } = createApp({
   serverFactory: () => buildServer({ log, actions }),
   agent,
   actions,
+  alexa: createAlexaHandlers({ agent, config, log }),
 });
 
 const httpServer = app.listen(config.port, config.host, () => {

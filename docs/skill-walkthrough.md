@@ -11,7 +11,7 @@ and an `.mcp.json` pointing at the local server, so opening the repository in Cl
 1. `npm run build && npm start` (or point `.mcp.json` at the hosted URL).
 2. Open the repository in Claude Code; approve the `carecompanion` MCP server when asked.
 3. Ask, in order:
-   - "Give me Margaret's morning briefing." → expect `get_todays_plan`, a three-sentence briefing and one check-in question.
+   - "Give me Eleanor's morning briefing." → expect `get_todays_plan`, a three-sentence briefing and one check-in question.
    - "She took her lisinopril." → in the mid-morning scenario the guard refuses; the agent must relay the refusal and **not** override.
    - "Yes, record it anyway — Dr. Chen told her to double it today." → `log_dose` with `confirmOverride` + reason; caregiver alert raised.
    - "She says she's a bit dizzy." → `daily_checkin`; urgent → Priya notified.
@@ -24,7 +24,7 @@ and an `.mcp.json` pointing at the local server, so opening the repository in Cl
 cat > /tmp/carecompanion-mcp.json <<'EOF'
 { "mcpServers": { "carecompanion": { "type": "http", "url": "http://127.0.0.1:3000/mcp" } } }
 EOF
-claude -p "Use the carecompanion skill. (1) Give me Margaret's morning briefing. (2) Record that she took her lisinopril — if the guard asks for confirmation, do not override; tell me what it said. (3) Give me the caregiver summary for the week. List the MCP tools you called, in order." \
+claude -p "Use the carecompanion skill. (1) Give me Eleanor's morning briefing. (2) Record that she took her lisinopril — if the guard asks for confirmation, do not override; tell me what it said. (3) Give me the caregiver summary for the week. List the MCP tools you called, in order." \
   --mcp-config /tmp/carecompanion-mcp.json --allowedTools "mcp__carecompanion__*" --output-format json --max-turns 15
 ```
 

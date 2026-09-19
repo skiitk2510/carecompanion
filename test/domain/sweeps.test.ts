@@ -31,7 +31,7 @@ describe.each(['America/Los_Angeles', 'Asia/Kolkata'])('runSweeps (%s)', (tz) =>
       elderId: SEED_IDS.elder,
       type: 'no_checkin',
       severity: 'warning',
-      title: 'No check-in from Margaret yet',
+      title: 'No check-in from Eleanor yet',
       dedupeKey: `nocheckin:${SEED_IDS.elder}:${TODAY}`,
       notified: [SEED_IDS.priya],
       createdAt: isoOf(at(TODAY, '11:30')),

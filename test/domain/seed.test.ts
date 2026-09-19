@@ -28,12 +28,12 @@ describe.each(HOUSEHOLDS)('buildSeedState in $tz at 10:30 local', ({ tz, iso }) 
     expect(toClockTime(now, tz)).toBe('10:30');
   });
 
-  it('creates the Hart household with the expected entities', () => {
+  it('creates the Whitfield household with the expected entities', () => {
     const state = build();
     expect(state.households).toHaveLength(1);
     expect(state.households[0]).toMatchObject({
       id: SEED_IDS.household,
-      name: 'The Hart family',
+      name: 'The Whitfield family',
       timezone: tz,
       emergencyNumber: '911',
     });
@@ -41,11 +41,11 @@ describe.each(HOUSEHOLDS)('buildSeedState in $tz at 10:30 local', ({ tz, iso }) 
     expect(state.elders[0]).toMatchObject({
       id: SEED_IDS.elder,
       householdId: SEED_IDS.household,
-      name: 'Margaret Hart',
+      name: 'Eleanor Whitfield',
       age: 78,
       conditions: ['hypertension', 'type 2 diabetes', 'atrial fibrillation'],
       allergies: ['penicillin'],
-      prefs: { preferredName: 'Margaret', checkInDeadline: '11:00', wakeTime: '07:00', bedTime: '21:30' },
+      prefs: { preferredName: 'Eleanor', checkInDeadline: '11:00', wakeTime: '07:00', bedTime: '21:30' },
     });
     expect(state.caregivers.map((c) => [c.id, c.relationship, c.channel, c.escalationPriority])).toEqual([
       [SEED_IDS.priya, 'daughter', 'sms', 1],

@@ -1,8 +1,8 @@
-import cors from 'cors';
-import type { Express } from 'express';
-import { createMcpExpressApp, hostHeaderValidation, originValidation } from '@modelcontextprotocol/express';
-import type { McpServer } from '@modelcontextprotocol/server';
 import { join } from 'node:path';
+import cors from 'cors';
+import express, { type Express, type RequestHandler } from 'express';
+import { hostHeaderValidation, originValidation } from '@modelcontextprotocol/express';
+import type { McpServer } from '@modelcontextprotocol/server';
 import type { AgentService } from '../agent/service.js';
 import type { Config } from '../config.js';
 import type { CareActions } from '../domain/actions.js';
@@ -24,6 +24,8 @@ export interface AppDeps {
   agent?: AgentService;
   /** Enables the REST routes for the web app's caregiver pane and the demo controls. */
   actions?: CareActions;
+  /** Classic Alexa Skill endpoint handlers (Alexa Skills Kit); mounted on POST /alexa with the raw body. */
+  alexa?: RequestHandler[];
   /** Directory of the built web app; defaults to dist/web. */
   webDir?: string;
 }
@@ -34,15 +36,24 @@ export interface CareCompanionApp {
   close(): Promise<void>;
 }
 
+/** Paths whose body must reach the handler unparsed (the Alexa Skills Kit adapter verifies the raw signature). */
+const RAW_BODY_PREFIXES = ['/alexa'];
+
 export function createApp(deps: AppDeps): CareCompanionApp {
   const { config, log } = deps;
   const startedAt = Date.now();
 
-  // host '0.0.0.0' switches off the SDK's automatic (app-wide) localhost guard; we scope DNS-rebinding
-  // protection to /mcp below so /healthz, /api and static assets stay reachable from Render's health checker.
-  const app = createMcpExpressApp({ host: '0.0.0.0', jsonLimit: '4mb' });
+  const app = express();
   // Render terminates TLS in front of us; trust one hop so req.ip is the client (rate limiting).
   app.set('trust proxy', 1);
+
+  // JSON everywhere except the raw-body routes. (The SDK's createMcpExpressApp installs an unconditional parser,
+  // which is why the app is assembled by hand here; its host/origin guards are still used below.)
+  const json = express.json({ limit: '4mb' });
+  app.use((req, res, next) => {
+    if (RAW_BODY_PREFIXES.some((p) => req.path === p || req.path.startsWith(`${p}/`))) return next();
+    return json(req, res, next);
+  });
 
   // Browser-based MCP hosts (basic-host, Inspector UI, Alexa+ web surfaces) must be able to read these headers.
   app.use(
@@ -62,7 +73,8 @@ export function createApp(deps: AppDeps): CareCompanionApp {
     })
   );
 
-  // Hostname-only (port-agnostic) checks, so 'localhost' / '127.0.0.1' cover dev servers and tests on any port.
+  // DNS-rebinding protection scoped to /mcp (hostname-only, port-agnostic), so platform health checks on
+  // /healthz and the public web app keep working behind any hostname.
   if (config.allowedHosts.length > 0) {
     app.use('/mcp', hostHeaderValidation(config.allowedHosts));
   }
@@ -83,6 +95,10 @@ export function createApp(deps: AppDeps): CareCompanionApp {
     mountDashboardRoutes(app, deps.actions, log);
     mountDemoRoutes(app, deps.actions, config, log);
   }
+  if (deps.alexa && deps.alexa.length > 0) {
+    app.post('/alexa', ...deps.alexa);
+    log.info('Alexa Skill endpoint mounted', { path: '/alexa' });
+  }
 
   app.get('/healthz', (_req, res) => {
     res.json({
@@ -91,6 +107,7 @@ export function createApp(deps: AppDeps): CareCompanionApp {
       uptimeSec: Math.round((Date.now() - startedAt) / 1000),
       mcpSessions: mcp.sessions.size,
       auth: config.mcpAuth,
+      alexaSkill: !!(deps.alexa && deps.alexa.length > 0),
       agent: deps.agent ? deps.agent.status() : null,
       demo: deps.actions ? deps.actions.demoStatus() : null,
     });

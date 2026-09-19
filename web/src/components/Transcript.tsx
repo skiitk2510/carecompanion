@@ -13,7 +13,7 @@ export interface TranscriptTurn {
   text: string;
   /** ISO time the turn was added. */
   at: string;
-  /** Who spoke a user turn ("Margaret", "Priya"). */
+  /** Who spoke a user turn ("Eleanor", "Priya"). */
   speakerLabel?: string;
   /** The full agent response behind an assistant turn. */
   response?: AgentResponse;

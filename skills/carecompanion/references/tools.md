@@ -26,12 +26,12 @@ gentle check-in question.
 
 ## Spoken examples
 
-- Plan: "Good morning, Margaret. You have 6 doses today, and you've taken 3 so far. Next up is Metformin at 6 p.m.
+- Plan: "Good morning, Eleanor. You have 6 doses today, and you've taken 3 so far. Next up is Metformin at 6 p.m.
   Physical therapy is tomorrow at 2 p.m. How are you feeling today?"
 - Guard refusal: "You already took Lisinopril at 8:05 a.m. today. I won't record another dose unless you're sure —
   say \"yes, record it anyway\" and tell me why."
 - Override: "Okay — I've recorded the extra Lisinopril and flagged it for your caregiver with your reason."
-- Urgent check-in: "That sounds worth a call. I've let Priya Hart-Singh know right away. If it gets worse, call 911."
-- Emergency: "This could be an emergency. Please call 911 right now. I'm alerting Priya Hart-Singh and Daniel Hart."
+- Urgent check-in: "That sounds worth a call. I've let Priya Whitfield-Singh know right away. If it gets worse, call 911."
+- Emergency: "This could be an emergency. Please call 911 right now. I'm alerting Priya Whitfield-Singh and Daniel Whitfield."
 - Add medication: "Added Ibuprofen 200 mg at 8 a.m. and 8 p.m. Heads-up, informational only: it's listed as a major
   interaction with Warfarin — … Please confirm with a pharmacist or doctor."

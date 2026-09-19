@@ -18,7 +18,7 @@ describe('POST /api/agent — the simulated Alexa+ brain over a real loopback MC
     expect(status).toBe(200);
     expect(json.brain).toBe('rules');
     expect(json.toolCalls.map((t) => t.name)).toEqual(['get_todays_plan']);
-    expect(json.reply).toContain('Good morning, Margaret.');
+    expect(json.reply).toContain('Good morning, Eleanor.');
     expect(srv.app.mcp.sessions.size).toBe(0); // the per-turn session was terminated
   });
 
@@ -48,7 +48,7 @@ describe('POST /api/agent — the simulated Alexa+ brain over a real loopback MC
       utterance: "I'm feeling a bit dizzy today",
     });
     expect(dizzy.json.toolCalls[0]?.name).toBe('daily_checkin');
-    expect(dizzy.json.reply).toContain("I've let Priya Hart-Singh know");
+    expect(dizzy.json.reply).toContain("I've let Priya Whitfield-Singh know");
 
     const help = await postJson<AgentResponse>(`${srv.baseUrl}/api/agent`, {
       utterance: 'help, I fell in the bathroom',
@@ -70,13 +70,13 @@ describe('POST /api/agent — the simulated Alexa+ brain over a real loopback MC
   it('bedrock brain: the scripted model drives the real MCP tools over loopback HTTP', async () => {
     const bedrock = scriptedBedrock([
       toolUseOutput([{ id: 'tu-1', name: 'get_todays_plan' }]),
-      textOutput('You have six doses today, Margaret. Next up is Metformin at 6 p.m.'),
+      textOutput('You have six doses today, Eleanor. Next up is Metformin at 6 p.m.'),
     ]);
     srv = await startTestServer({ converse: bedrock.converse });
     const { json } = await postJson<AgentResponse>(`${srv.baseUrl}/api/agent`, { utterance: 'what do I take today' });
     expect(json.brain).toBe('bedrock');
     expect(json.toolCalls[0]).toMatchObject({ name: 'get_todays_plan', isError: false });
-    expect(json.toolCalls[0]?.resultText).toContain('Good morning, Margaret.');
+    expect(json.toolCalls[0]?.resultText).toContain('Good morning, Eleanor.');
     expect(json.reply).toContain('Next up is Metformin');
     // The elder-facing tool list was offered to the model, and the tool schemas were sanitized for Bedrock.
     const offered = bedrock.calls[0]!.toolConfig!.tools!.map((t) => t.toolSpec!.name);

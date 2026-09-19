@@ -1,5 +1,5 @@
 /**
- * Today-relative synthetic household for demos and tests: the Hart family. Nothing in here is real data.
+ * Today-relative synthetic household for demos and tests: the Whitfield family. Nothing in here is real data.
  *
  * Everything is derived from `now` in the household timezone, so the seed looks the same at any boot hour:
  * thirty local days of dose history (days -30 … -1) with a deterministic outcome pattern — all taken except six
@@ -49,8 +49,8 @@ export interface SeedOptions {
 }
 
 export const SEED_IDS = {
-  household: 'household_hart',
-  elder: 'elder_margaret',
+  household: 'household_whitfield',
+  elder: 'elder_eleanor',
   priya: 'cg_priya',
   daniel: 'cg_daniel',
   lisinopril: 'med_lisinopril',
@@ -205,19 +205,19 @@ export function buildSeedState(opts: SeedOptions): State {
 
   const household: Household = {
     id: SEED_IDS.household,
-    name: 'The Hart family',
+    name: 'The Whitfield family',
     timezone: tz,
     emergencyNumber: '911',
   };
   const elder: Elder = {
     id: SEED_IDS.elder,
     householdId: household.id,
-    name: 'Margaret Hart',
+    name: 'Eleanor Whitfield',
     age: 78,
     conditions: ['hypertension', 'type 2 diabetes', 'atrial fibrillation'],
     allergies: ['penicillin'],
     prefs: {
-      preferredName: 'Margaret',
+      preferredName: 'Eleanor',
       wakeTime: '07:00',
       breakfastTime: '08:00',
       lunchTime: '12:30',
@@ -230,7 +230,7 @@ export function buildSeedState(opts: SeedOptions): State {
     {
       id: SEED_IDS.priya,
       householdId: household.id,
-      name: 'Priya Hart-Singh',
+      name: 'Priya Whitfield-Singh',
       relationship: 'daughter',
       channel: 'sms',
       escalationPriority: 1,
@@ -238,7 +238,7 @@ export function buildSeedState(opts: SeedOptions): State {
     {
       id: SEED_IDS.daniel,
       householdId: household.id,
-      name: 'Daniel Hart',
+      name: 'Daniel Whitfield',
       relationship: 'son',
       channel: 'email',
       escalationPriority: 2,
@@ -381,8 +381,8 @@ export function buildSeedState(opts: SeedOptions): State {
       elderId: elder.id,
       type: 'symptom',
       severity: 'critical',
-      title: 'Margaret reported dizziness at check-in',
-      detail: `At the ${spokenClockTime(CHECKIN_TIME)} check-in on ${monthDay(yesterday)} Margaret said she felt "a bit dizzy". Dizziness is on the urgent list for someone on blood-pressure medication and a blood thinner.`,
+      title: 'Eleanor reported dizziness at check-in',
+      detail: `At the ${spokenClockTime(CHECKIN_TIME)} check-in on ${monthDay(yesterday)} Eleanor said she felt "a bit dizzy". Dizziness is on the urgent list for someone on blood-pressure medication and a blood thinner.`,
       createdAt: at(yesterday, CHECKIN_TIME),
       refId: seedCheckInId(yesterday),
       dedupeKey: `symptom:${seedCheckInId(yesterday)}`,
@@ -396,7 +396,7 @@ export function buildSeedState(opts: SeedOptions): State {
       type: 'skipped_dose',
       severity: 'info',
       title: `Skipped Metformin (${spokenClockTime('18:00')})`,
-      detail: `Margaret skipped her ${spokenClockTime('18:00')} Metformin on ${monthDay(yesterday)} — reason: upset stomach.`,
+      detail: `Eleanor skipped her ${spokenClockTime('18:00')} Metformin on ${monthDay(yesterday)} — reason: upset stomach.`,
       createdAt: at(yesterday, '18:00', 10),
       refId: seedDoseId(SEED_IDS.metformin, yesterday, '18:00'),
       dedupeKey: `skipped:${seedDoseId(SEED_IDS.metformin, yesterday, '18:00')}`,

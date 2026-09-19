@@ -51,7 +51,7 @@ describe('Streamable HTTP session lifecycle (spec 2025-11-25, sessionful)', () =
     const result = await client.callTool({ name: 'get_todays_plan', arguments: {} });
     const first = (result.content as Array<{ type: string; text?: string }>)[0];
     expect(first?.type).toBe('text');
-    expect(first?.text).toMatch(/^Good morning, Margaret\./);
+    expect(first?.text).toMatch(/^Good morning, Eleanor\./);
     expect((result.structuredContent as { doses: unknown[] }).doses.length).toBeGreaterThan(0);
 
     await transport.terminateSession();

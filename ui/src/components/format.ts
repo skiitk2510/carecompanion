@@ -129,7 +129,7 @@ export function joinNames(names: readonly string[]): string {
   return `${names.slice(0, -1).join(', ')} and ${names[names.length - 1] ?? ''}`;
 }
 
-/** First name for compact labels ("Priya Hart-Singh" → "Priya"). */
+/** First name for compact labels ("Priya Whitfield-Singh" → "Priya"). */
 export function firstName(name: string): string {
   return name.trim().split(/\s+/)[0] || name;
 }
