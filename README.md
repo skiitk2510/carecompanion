@@ -191,6 +191,16 @@ optional `resource=<PUBLIC_URL>/mcp`) returns a token valid for up to an hour; `
 envelopes, so restarts and multiple instances need no shared store. The simulated Alexa+ brain mints its own token
 for its loopback calls. User-level account linking (Tier 2) is out of scope for a synthetic household.
 
+## Why it matters
+
+The case for the guardrails, with every figure fetched and quoted from CDC, JAMA, NEJM, AARP/NAC, Pew and Amazon
+sources: [docs/EVIDENCE.md](docs/EVIDENCE.md). In short: a third of 60-to-79-year-olds take five or more
+medications; adverse drug events send older adults to the emergency department at more than twice the rate of
+younger adults, with anticoagulants such as warfarin among the top culprits; a warfarin-plus-NSAID combination
+roughly doubles the odds of a gastrointestinal bleed; one in four older adults falls each year and blood-pressure
+medicines are a named risk factor; most family caregivers manage medications, and more than one in ten live an
+hour or more away. Amazon's own elder-care subscription for Alexa, Alexa Together, is "no longer available".
+
 ## Safety & scope
 
 CareCompanion is a coordination and reminder tool, **not medical advice**. Interaction warnings come from a small,
