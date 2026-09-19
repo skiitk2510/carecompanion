@@ -5,8 +5,11 @@ Mini-challenges: **AWS Builder** (Amazon Bedrock) and **Open Source** (new MIT r
 
 ## Tagline
 
-An eldercare-coordination MCP server for Alexa+: medication reminders with safety guardrails, daily voice check-ins
-with symptom escalation, and a family dashboard that Alexa+ renders as an MCP App.
+Medication safety guardrails for Alexa+: an MCP server that refuses duplicate doses, flags interactions, escalates
+symptoms to family caregivers, and renders a family dashboard as an MCP App.
+
+_(191 characters; Devpost allows 200. Repositioned on 2026-09-19 after the competitive survey: "eldercare
+coordination" is a crowded category, the guardrails are unique in the field.)_
 
 ## The problem
 

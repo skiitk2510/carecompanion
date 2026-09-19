@@ -1,7 +1,7 @@
 {
   "name": "carecompanion",
   "version": "0.1.0",
-  "description": "Eldercare-coordination agent for Alexa+: an MCP server with medication guardrails, daily check-ins, caregiver alerts, and a family dashboard MCP App.",
+  "description": "Medication safety guardrails for Alexa+: an MCP server that refuses duplicate doses, flags drug interactions, escalates symptoms to family caregivers, and ships a family dashboard as an MCP App.",
   "private": true,
   "type": "module",
   "license": "MIT",
@@ -45,7 +45,10 @@
     "mcp:lifecycle": "bash scripts/mcp-lifecycle.sh",
     "agent:smoke": "node scripts/agent-smoke.mjs",
     "skill:validate": "npx -y skills-ref validate skills/carecompanion",
-    "figures": "node scripts/figures.mjs"
+    "figures": "node scripts/figures.mjs",
+    "verify:live": "node scripts/verify-live.mjs",
+    "persona:eval": "node scripts/persona-eval.mjs",
+    "addon:assets": "node scripts/addon-assets.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-bedrock-runtime": "^3.1133.0",

@@ -1,8 +1,10 @@
 # CareCompanion
 
-An eldercare-coordination agent for Alexa+: medication reminders with **safety guardrails**, daily voice check-ins
-with **symptom escalation**, and a **family caregiver dashboard delivered as an MCP App** — all behind one
-self-hosted MCP server, packaged with an Agent Skill.
+**Medication safety guardrails for Alexa+.** A self-hosted MCP server that lets a voice assistant say _no_ safely:
+it **refuses a duplicate or too-soon dose** until the person confirms and gives a reason, **flags drug interactions
+and allergies** when a caregiver adds a medication, **escalates symptoms** to the family by severity, and ships the
+**family dashboard as an MCP App** that Alexa+ renders inline. Packaged with an Agent Skill, a classic Alexa Skill
+front end, and a simulated Alexa+ experience for the demo.
 
 Built for the [Build, Ship, Shape: Amazon Developer Hackathon](https://amazonappdev2026.devpost.com/)
 (Alexa+ track · AWS Builder mini · Open Source mini). MIT licensed; created from scratch during the hackathon window.

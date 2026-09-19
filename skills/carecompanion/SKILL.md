@@ -1,11 +1,11 @@
 ---
 name: carecompanion
-description: "Eldercare coordination through the CareCompanion MCP server — medication reminders with duplicate-dose and interaction guardrails, daily check-ins with symptom escalation, and a family caregiver dashboard. Use when someone mentions \"eldercare\", \"medication reminder\", \"did I take my pill\", \"daily check-in\", \"caregiver dashboard\", or asks to brief, log, or review an elder's day. Coordination and reminders only — not medical advice."
+description: 'Medication safety guardrails through the CareCompanion MCP server — a duplicate-dose guard that needs explicit confirmation, interaction and allergy warnings when adding medications, symptom escalation to family caregivers, daily check-ins, and a caregiver dashboard. Use when someone mentions "medication reminder", "did I take my pill", "double dose", "drug interaction", "daily check-in", "caregiver dashboard", "eldercare", or asks to brief, log, or review an elder''s day. Coordination and reminders only — not medical advice.'
 license: MIT
 compatibility: Needs an MCP-capable agent host connected to a CareCompanion server (Streamable HTTP or stdio); works in any host that can call MCP tools.
 metadata:
   author: Saurabh Kumar
-  version: "1.0"
+  version: '1.0'
   homepage: https://github.com/skiitk2510/carecompanion
 ---
 
