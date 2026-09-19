@@ -39,11 +39,17 @@ npm start              # http://127.0.0.1:3000  (MCP at /mcp, web app at /, heal
 Then, in another terminal:
 
 ```bash
+npm run verify:live -- http://127.0.0.1:3000   # graded conformance probe: 20 rules, writes docs/conformance/verdict.json
 npm run mcp:lifecycle  # curl walk-through of the Streamable HTTP session lifecycle
 npm run mcp:inspect    # MCP Inspector UI against the running server
 npm run agent:smoke    # the five demo beats through POST /api/agent (prints which brain + tools answered)
-npm test               # 160+ tests: guardrails, seed, MCP tools over the SDK client, agent loop, REST routes
+npm test               # 180+ tests: guardrails, seed, MCP tools over the SDK client, agent loop, REST routes, conformance
 ```
+
+The conformance probe ([docs/conformance/README.md](docs/conformance/README.md)) is our own stand-in for Amazon's
+Local Inspector, which is not available to hackathon participants: it grades the sessionful lifecycle, the
+2025-03-26 and 2025-11-25 handshakes, the MCP App resource, the 500 ms round-trip budget, error semantics, CORS
+and the Tier-1 auth behaviour, and it exits non-zero on any MUST failure so it can gate a deployment.
 
 Local MCP hosts can use stdio instead: `node dist/server/bin/stdio.js`. Opening the repository in Claude Code gives
 you both the server (`.mcp.json`) and the Agent Skill (`.claude/skills/carecompanion`) — ask for "Eleanor's morning

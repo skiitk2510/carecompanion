@@ -1,0 +1,185 @@
+{
+  "target": "http://127.0.0.1:3100/mcp",
+  "checkedAt": "2026-09-19T02:12:08.723Z",
+  "auth": "anonymous",
+  "strict": false,
+  "protocolVersions": {
+    "2025-11-25": "2025-11-25",
+    "2025-03-26": "2025-03-26"
+  },
+  "summary": {
+    "must": {
+      "pass": 12,
+      "fail": 0,
+      "skip": 0
+    },
+    "should": {
+      "pass": 7,
+      "fail": 0,
+      "skip": 1
+    },
+    "verdict": "PASS"
+  },
+  "rules": [
+    {
+      "id": 1,
+      "level": "MUST",
+      "title": "initialize 2025-11-25 → 200 + result",
+      "status": "PASS",
+      "detail": "200 application/json; negotiated 2025-11-25; server carecompanion 0.1.0",
+      "ms": 14
+    },
+    {
+      "id": 2,
+      "level": "MUST",
+      "title": "Mcp-Session-Id on the initialize response",
+      "status": "PASS",
+      "detail": "Mcp-Session-Id: fcd1fc14-49a8-4a21-b888-20d7bc931fae",
+      "ms": 0
+    },
+    {
+      "id": 3,
+      "level": "MUST",
+      "title": "notifications/initialized → 202",
+      "status": "PASS",
+      "detail": "202 Accepted",
+      "ms": 1
+    },
+    {
+      "id": 4,
+      "level": "MUST",
+      "title": "tools/list: well-formed tools",
+      "status": "PASS",
+      "detail": "8 tools, all with name/description/inputSchema; all 8 CareCompanion tools present",
+      "ms": 3
+    },
+    {
+      "id": 5,
+      "level": "MUST",
+      "title": "MCP Apps tool + readable ui:// resource",
+      "status": "PASS",
+      "detail": "caregiver_summary, get_todays_plan, log_dose → ui://carecompanion/dashboard.html (listed; text/html;profile=mcp-app, 500 KB)",
+      "ms": 7
+    },
+    {
+      "id": 6,
+      "level": "MUST",
+      "title": "tools/call of a read-only tool",
+      "status": "PASS",
+      "detail": "get_todays_plan: \"Good morning, Eleanor. You have 6 doses today, and you've t…\" + structuredContent {today, localTime, elderName, doses, …}",
+      "ms": 3
+    },
+    {
+      "id": 7,
+      "level": "MUST",
+      "title": "tools/call round trip < 500 ms (median of 3)",
+      "status": "PASS",
+      "detail": "get_todays_plan: median 1.5 ms of [2.0, 1.5, 1.5] (budget < 500 ms)",
+      "ms": 1
+    },
+    {
+      "id": 8,
+      "level": "MUST",
+      "title": "GET /mcp opens a text/event-stream",
+      "status": "PASS",
+      "detail": "200 text/event-stream (headers only; body aborted)",
+      "ms": 2
+    },
+    {
+      "id": 9,
+      "level": "MUST",
+      "title": "DELETE /mcp ends the session",
+      "status": "PASS",
+      "detail": "200 for session fcd1fc14-49a8-4a21-b888-20d7bc931fae",
+      "ms": 1
+    },
+    {
+      "id": 10,
+      "level": "MUST",
+      "title": "dead session id → 404 / -32001",
+      "status": "PASS",
+      "detail": "404, error -32001 \"Session not found\"",
+      "ms": 1
+    },
+    {
+      "id": 11,
+      "level": "MUST",
+      "title": "no session id → 400 / -32000",
+      "status": "PASS",
+      "detail": "400, error -32000 \"Bad Request: Session ID required\"",
+      "ms": 0
+    },
+    {
+      "id": 12,
+      "level": "MUST",
+      "title": "CORS preflight exposes Mcp-Session-Id",
+      "status": "PASS",
+      "detail": "204; Access-Control-Expose-Headers: Mcp-Session-Id,WWW-Authenticate,Last-Event-Id,Mcp-Protocol-Version; Allow-Origin: *",
+      "ms": 0
+    },
+    {
+      "id": 13,
+      "level": "SHOULD",
+      "title": "initialize 2025-03-26 (Alexa+ docs example handshake)",
+      "status": "PASS",
+      "detail": "200; negotiated 2025-03-26 (echoed)",
+      "ms": 2
+    },
+    {
+      "id": 14,
+      "level": "SHOULD",
+      "title": "invalid tool arguments → isError or JSON-RPC error, never 500",
+      "status": "PASS",
+      "detail": "log_dose {\"medication\":123} → isError: Input validation error: Invalid arguments for tool log_dose: medication: Invali…",
+      "ms": 1
+    },
+    {
+      "id": 15,
+      "level": "SHOULD",
+      "title": "prompts/list ≥ 1 and prompts/get of the first",
+      "status": "PASS",
+      "detail": "1 prompt(s); prompts/get morning_briefing → 1 message(s)",
+      "ms": 3
+    },
+    {
+      "id": 16,
+      "level": "SHOULD",
+      "title": "resources/templates/list ≥ 1",
+      "status": "PASS",
+      "detail": "1 template(s): carecompanion://elder/{elderId}/adherence",
+      "ms": 1
+    },
+    {
+      "id": 17,
+      "level": "SHOULD",
+      "title": "every tool declares annotations.openWorldHint === false",
+      "status": "PASS",
+      "detail": "all 8 tools are closed-world",
+      "ms": 0
+    },
+    {
+      "id": 18,
+      "level": "SHOULD",
+      "title": "GET /healthz → 200 {ok:true}",
+      "status": "PASS",
+      "detail": "200 {ok:true, version 0.1.0, auth none, mcpSessions 1}",
+      "ms": 2
+    },
+    {
+      "id": 19,
+      "level": "SHOULD",
+      "title": "auth: 401 JSON without WWW-Authenticate + protected-resource metadata",
+      "status": "SKIP",
+      "detail": "server is open (anonymous initialize → 200) and no --token given",
+      "ms": 2
+    },
+    {
+      "id": 20,
+      "level": "SHOULD",
+      "title": "a second initialize opens a different session id",
+      "status": "PASS",
+      "detail": "second session f92e0dfc-42bc-4dd9-bfdf-68df8f0080bb ≠ first fcd1fc14-49a8-4a21-b888-20d7bc931fae; closed again",
+      "ms": 2
+    }
+  ]
+}
