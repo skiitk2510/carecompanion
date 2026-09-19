@@ -89,6 +89,15 @@ Running log of friction hit while building CareCompanion for the Alexa+ track, k
 - **Workaround:** Kept the SDK's runtime-neutral `verifyBearerToken` for validation and wrote a 10-line middleware that sends the bare 401 JSON (`src/http/authRoutes.ts`); the discovery documents are still served at both well-known paths.
 - **Suggestion:** Either accept the RFC 9728 challenge or explain why the header must be absent; and document whether an add-on without account linking may call an unauthenticated server at all.
 
+## FL-12 · The v2 client registers notification handlers by method name, but every example still shows a zod schema
+
+- **Date:** 2026-09-19 · **Tool:** `@modelcontextprotocol/client` 2.0.0 (`setNotificationHandler`) · **Severity:** low
+- **Task:** Receive server-initiated `notifications/message` (our alert push) in a test client.
+- **Steps:** Followed the v1-era pattern `client.setNotificationHandler(LoggingMessageNotificationSchema, handler)`. The schema is not exported from the client package (only from an internal chunk), and the runtime answered `'undefined' is not a spec notification method; pass schemas as the second argument to setNotificationHandler()`.
+- **Expectation vs reality:** Expected the documented v1 signature to keep working or the migration notes to mention the change. Reality: v2 takes the spec method string first (`'notifications/message'`) with the params typed from `NotificationTypeMap`, and custom notifications take `(method, { params: schema }, handler)`. The runtime error is good; the docs are not there yet.
+- **Workaround:** `client.setNotificationHandler('notifications/message', (n) => …)` (`test/mcp/notifications.test.ts`).
+- **Suggestion:** Add the new signature to the v2 migration guide and the client README, and export the spec schemas from the client package for those who still want schema-based typing.
+
 ## FL-05 · Fresh `npm install` resolves TypeScript 6 / ESLint 10, which `typescript-eslint` 8 does not support
 
 - **Date:** 2026-09-16 · **Tool:** general TypeScript toolchain · **Severity:** low (general ecosystem)

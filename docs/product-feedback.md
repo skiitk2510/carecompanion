@@ -29,6 +29,11 @@ to [friction-log.md](friction-log.md).
   tool-list display. The single-file build recipe (Vite + `vite-plugin-singlefile`) is folklore rather than a
   template. A hidden/zero-width host tab makes `size-changed` report absurd heights (19,000 px) — hosts should
   clamp, or the SDK could skip resize notifications while the view has no layout width.
+- **Also worked:** one view bundle serving three tools. Registering `get_todays_plan` and `log_dose` with the same
+  `resourceUri` as `caregiver_summary` and choosing the screen by the shape of `structuredContent` cost one afternoon
+  and no second build; `requestDisplayMode('fullscreen')` gave the inline-to-full transition for free. Server-side,
+  `sendLoggingMessage` with the `logging` capability pushed alert notifications to every open session on the first
+  try.
 - **Onboarding:** one evening including the build pipeline; verified in `basic-host` (initialize → tool-input →
   tool-result → size-changed) the same night.
 - **Would build on it again:** yes — it is the right abstraction for a voice-first host with a screen.
