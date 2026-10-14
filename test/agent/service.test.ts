@@ -67,6 +67,16 @@ describe('POST /api/agent — the simulated Alexa+ brain over a real loopback MC
     expect(res.json.reply).toMatch(/7-day adherence is \d+ percent/);
   });
 
+  it('rule brain: a caregiver adding a medication by voice is sent to the dashboard form, not to the check-in log', async () => {
+    srv = await startTestServer();
+    const res = await postJson<AgentResponse>(`${srv.baseUrl}/api/agent`, {
+      utterance: 'Add ibuprofen 200 mg at 8 am and 8 pm for knee pain',
+      speaker: 'caregiver',
+    });
+    expect(res.json.toolCalls).toHaveLength(0);
+    expect(res.json.reply).toMatch(/add medications from the dashboard/i);
+  });
+
   it('bedrock brain: the scripted model drives the real MCP tools over loopback HTTP', async () => {
     const bedrock = scriptedBedrock([
       toolUseOutput([{ id: 'tu-1', name: 'get_todays_plan' }]),

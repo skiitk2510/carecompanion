@@ -15,6 +15,8 @@ const FEEL =
   /\b(feel|feeling|felt|check.?in|mood|tired|dizzy|sick|pain|headache|nausea|sleep|great|good|okay|fine|bad|awful|terrible|low|sad)\b/i;
 const SUMMARY = /\b(summary|dashboard|how (is|was|did)|adherence|report|week)\b/i;
 const RESOLVE = /\b(acknowledge|resolve|clear) (the )?alert\b/i;
+const ADD_MED =
+  /\b(add|start|prescribe[sd]?|put .* on)\b.*\b(mg|mcg|ml|pill|tablet|capsule|medication|medicine|prescription|for \w+ pain)\b/i;
 
 const MOODS = [
   'great',
@@ -97,6 +99,13 @@ export function createRuleBrain(): Brain {
       if (speaker === 'caregiver' && RESOLVE.test(utterance)) {
         return finish(
           'Please acknowledge or resolve alerts from the dashboard, where you can add a note for the record.'
+        );
+      }
+      if (speaker === 'caregiver' && ADD_MED.test(utterance)) {
+        // add_medication is a caregiver tool this offline router does not fill in by voice; the dashboard form
+        // (its REST twin, POST /api/dashboard/medications) runs the same interaction check and reads every warning.
+        return finish(
+          'Please add medications from the dashboard, where I check the new one against the current list and show every interaction warning.'
         );
       }
       if (speaker === 'caregiver' && SUMMARY.test(utterance)) {
