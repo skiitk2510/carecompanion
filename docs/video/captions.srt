@@ -1,0 +1,55 @@
+1
+00:00:00,500 --> 00:00:05,000
+CareCompanion — medication safety guardrails for Alexa+
+
+2
+00:00:05,200 --> 00:00:14,500
+Eleanor is 78 and takes five medications. Her daughter Priya lives two hours away.
+
+3
+00:00:15,000 --> 00:00:22,000
+"Alexa, what's my plan today?"
+
+4
+00:00:22,200 --> 00:00:39,500
+MCP tools/call · get_todays_plan — the briefing comes straight from the MCP server
+
+5
+00:00:40,000 --> 00:00:48,000
+"I took my blood pressure pill, the lisinopril."
+
+6
+00:00:48,200 --> 00:00:58,000
+Duplicate-dose guard: the server refuses until it hears an explicit yes AND a reason
+
+7
+00:00:58,200 --> 00:01:09,500
+Override recorded — flagged to Priya with the reason, visible on the dashboard
+
+8
+00:01:10,000 --> 00:01:20,000
+"I'm feeling a bit dizzy this morning."
+
+9
+00:01:20,200 --> 00:01:34,500
+Symptom escalation: urgent → priority-1 caregiver notified (notification simulated)
+
+10
+00:01:35,000 --> 00:01:50,000
+Caregiver adds ibuprofen → interaction check: Warfarin (major), Lisinopril (moderate) — informational, with a disclaimer
+
+11
+00:01:50,200 --> 00:02:04,500
+Every alert closed by a caregiver leaves an audit trail
+
+12
+00:02:05,000 --> 00:02:18,000
+One MCP server: 8 tools · 1 resource · 1 prompt · dashboard shipped as an MCP App
+
+13
+00:02:18,200 --> 00:02:29,500
+Agent Skill drives the same server from any agent · classic Alexa Skill front end · Bedrock or rule brain
+
+14
+00:02:30,000 --> 00:02:44,000
+Open source, MIT · github.com/skiitk2510/carecompanion · coordination and reminders, not medical advice
