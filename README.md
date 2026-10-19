@@ -9,8 +9,10 @@ front end, and a simulated Alexa+ experience for the demo.
 Built for the [Build, Ship, Shape: Amazon Developer Hackathon](https://amazonappdev2026.devpost.com/)
 (Alexa+ track · AWS Builder mini · Open Source mini). MIT licensed; created from scratch during the hackathon window.
 
-> **Status:** MCP server, guardrails, Bedrock brain, Agent Skill and both UIs are built and tested. Live deployment,
-> demo video and final polish are in progress (see [Status](#status)).
+> **Status:** feature-frozen on 2026-10-12. MCP server, guardrails, agent loop, Agent Skill, classic Alexa Skill
+> and both UIs are built and tested (213 tests, CI on Node 22 and 24). **Not deployed to a public host before the
+> deadline — run it locally** (two commands, [Quickstart](#quickstart)); the Bedrock brain needs the account's
+> Anthropic use-case form approved, otherwise the rule brain answers (see [Status](#status)).
 
 ## What ships
 
@@ -152,8 +154,9 @@ terminates the session — the same wire protocol an external host uses, visible
 Figures are reproducible: `npm run figures` drives the local Chrome through the web app and basic-host
 (`scripts/figures.mjs`).
 
-- Live server + web experience: _coming with the deployment_ (`/mcp`, `/`, `/healthz`).
-- Demo video: _coming_.
+- Live server + web experience: **not deployed** — `npm run build && npm start` serves `/mcp`, `/` and `/healthz`
+  on `http://localhost:3000` (`render.yaml` is ready for whoever hosts it).
+- Demo video: _link added on submission_.
 - Script and recording checklist: [docs/demo-script.md](docs/demo-script.md). The demo menu in the web app can
   re-seed the household and set the local time (`POST /api/demo/reset`, token-gated) so the "mid-morning" and
   "evening" beats are reproducible at any hour.
@@ -162,8 +165,8 @@ Figures are reproducible: `npm run figures` drives the local Chrome through the 
 **What is simulated:** the Alexa+ device (a web app with browser speech), caregiver notifications (recorded on
 the alert and logged — no SMS/email is sent), and the household itself (synthetic data, resets on restart).
 
-The first request after ~15 minutes idle on the free hosting tier takes up to a minute (cold start); the app is
-otherwise stateless per session, so MCP clients simply re-initialize after a restart (`404 / -32001`).
+On a free hosting tier the first request after ~15 minutes idle would take up to a minute (cold start); the app
+is stateless per session, so MCP clients simply re-initialize after a restart (`404 / -32001`).
 
 ## Try it on real Alexa (classic skill)
 
@@ -286,8 +289,10 @@ validation is applied to `/mcp` only, so platform health checks on `/healthz` ke
 - [x] Repositioning after the competitive survey: guardrails first; elder screens (today card, dose guard);
       server-push alert notifications; Alexa+ inline/fullscreen display modes
 - [x] Classic Alexa Skill front end · live conformance probe · Alexa+ add-on package · evidence document
-- [ ] M6 Agent Skill walk-through, docs, product feedback
-- [ ] M7 live deployment · M8 video · M9 submission
+- [x] M6 Agent Skill (validated with `skills-ref`), docs, product feedback for every tool used, 12 friction entries
+- [x] Feature freeze 2026-10-12: clean-clone QA, conformance probe PASS (12/12 MUST, 7/7 SHOULD), persona evals
+- [ ] M7 public deployment — **not done**; local run only (Render blueprint ready)
+- [ ] M8 demo video · M9 Devpost submission (deadline 2026-10-23 12:00 PT)
 
 ## Feedback for the tool makers
 

@@ -92,11 +92,31 @@ the adapter`), which forces a hand-assembled Express app when the same server al
 
 ## Web Speech API (Chrome)
 
-- _To be completed after the web app's voice loop is recorded (M4)._
+- **What worked:** push-to-talk is a dozen lines — `SpeechRecognition` with `continuous = false`,
+  `interimResults = true` and `lang = 'en-US'` gives a live transcript while the person is still talking and one
+  final string when the microphone closes, which is exactly the shape an Alexa-style turn needs. `speechSynthesis`
+  spoke every reply with no server round trip; cancelling the current utterance before speaking the next one keeps a
+  fast-typing demo from queueing speech. Feature detection (`window.SpeechRecognition ?? webkitSpeechRecognition`)
+  made the text-input fallback automatic in browsers without recognition (`web/src/lib/speech.ts`,
+  `web/src/components/PushToTalk.tsx`).
+- **Needs work:** `lib.dom` ships the result types (`SpeechRecognitionResultList`) but not the recognizer
+  constructor, so every project re-declares the same minimal interface. Error codes (`not-allowed`, `no-speech`,
+  `network`, `audio-capture`) arrive as bare strings that we had to map to human sentences ourselves. Voice
+  availability is asynchronous and vendor-specific: `getVoices()` can be empty on first call, so picking an English
+  voice needs a retry, and a cancelled queue sometimes never starts the next utterance (we give up after a timeout).
+  Recognition quality is Chrome-only in practice — Safari's results differed enough that we record the demo in
+  Chrome.
+- **Onboarding:** under an hour for the loop; the time went into the error and voice edge cases.
+- **Would build on it again:** yes for a browser-side simulation of a voice assistant; the fallbacks are mandatory.
 
 ## Render (free web service)
 
-- _To be completed after deployment (M7)._
+- **Not exercised before submission.** The deployment artefacts were written against Render's documentation —
+  `render.yaml` (Node from `.node-version`, `npm ci --include=dev`, `/healthz` health check, secrets marked
+  `sync: false`), the `0.0.0.0` bind, the host-header guard that leaves `/healthz` open for the platform checker
+  (FL-03) — and the server runs on any Node host, but the service itself was not created before the deadline, so the
+  submission runs locally (README Quickstart). We are not rating a product we did not use; the Alexa Skill and add-on
+  manifests keep a hostname placeholder for whoever deploys it.
 
 ## Alexa+ MCP Toolkit — documentation experience
 

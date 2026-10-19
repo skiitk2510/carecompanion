@@ -126,19 +126,19 @@ characters). What each step needs:
 ### "Built with" tags
 
 typescript, node.js, express, mcp, model-context-protocol, mcp-apps, agent-skills, amazon-bedrock, claude, aws-sdk,
-react, vite, tailwindcss, zod, vitest, web-speech-api, render, github-actions, alexa
+react, vite, tailwindcss, zod, vitest, web-speech-api, github-actions, alexa
 
 ### "Try it out" links
 
 - https://github.com/skiitk2510/carecompanion
-- Live: `https://<render-host>/` — _fill in after deployment_
+- Live: none — not deployed before the deadline; the README Quickstart runs everything locally in two commands
 
 ### Additional-info answers (paste-ready; also entered in the draft)
 
 - Submitter type: Individual · Organization: N/A · Country: India · Canada province: N/A
 - Primary track: **Alexa+** · Repo: https://github.com/skiitk2510/carecompanion · New project: **New**
 - AWS Builder mini: **Yes** · Open Source mini: **Yes** (contribution URL = repo URL; GitHub username `skiitk2510`)
-- Project testing link: the live URL — _fill in after deployment_
+- Project testing link: https://github.com/skiitk2510/carecompanion#quickstart (no public host; local run)
 
 **AWS services and how:** Amazon Bedrock (Converse API, Anthropic Claude Haiku 4.5 through the `us.` cross-region
 inference profile, `@aws-sdk/client-bedrock-runtime`) is the conversational brain of the simulated Alexa+
@@ -155,7 +155,7 @@ Documented in the README and `docs/product-feedback.md`; unit-tested with a scri
 and built in public with CI. It is a complete, reusable MCP server for eldercare coordination (8 tools, resource
 template, prompt), the sessionful Streamable HTTP wiring voice hosts need, a dashboard MCP App with inline and
 fullscreen modes, an Agent Skill validated with `skills-ref`, Alexa+ Tier-1 client-credentials auth on the SDK's
-bearer helpers, a Bedrock tool-use loop over a real MCP client, and 170 tests under three timezones. Most public
+bearer helpers, a Bedrock tool-use loop over a real MCP client, and 213 tests under three timezones. Most public
 MCP examples are stateless toy servers; this shows the whole Alexa+-ready shape plus a safety-guardrail domain, with
 a dated friction log and product feedback others can learn from.
 
@@ -174,15 +174,16 @@ a dated friction log and product feedback others can learn from.
 `https://github.com/skiitk2510/carecompanion/blob/main/docs/friction-log.md`. The entry format (task, steps,
 expected vs actual, severity, workaround, suggestion) is described inside the document itself and in Feedback Q3.
 
-_Status 2026-09-18: step 3 saved on Devpost (draft 1187950, "3/5 steps done"); step 2 waits for the video URL;
-step 4 (Official Rules + Terms checkbox and the Submit button) is the submitter's click on Oct 20. Devpost states
-that a submitted project can still be edited until the deadline._
+_Status 2026-10-19: step 3 saved on Devpost (draft 1187950, "3/5 steps done"); step 2 waits for the video URL
+(the video is a hard requirement — no valid submission without it); step 4 (Official Rules + Terms checkbox and the
+Submit button) is the submitter's click. Hard deadline Oct 23 12:00 PT = Oct 24 00:30 IST. Devpost states that a
+submitted project can still be edited until the deadline._
 
 **Feedback questions 1–5:** the per-tool answers are the condensed form of [product-feedback.md](product-feedback.md)
 (sections: MCP SDK v2, MCP Apps, MCP Inspector, Bedrock, Alexa+ docs, Agent Skills, Web Speech, Render). Q1 = tools
 and what for; Q2 = what worked; Q3 = needs work with FL-xx references; Q4 = onboarding time-to-hello-world; Q5 = would
-build again, Yes with caveats. The Render and Web Speech lines are marked "[to be completed after deployment]" and
-must be finished before submitting.
+build again, Yes with caveats. Web Speech is written from the recorded voice loop; the Render section states honestly
+that the service was never deployed, so it is not rated (Q1 lists only tools actually used).
 
 ## Images to upload with the submission
 
@@ -193,6 +194,6 @@ a reference host, inline and fullscreen). Regenerate with `npm run figures`.
 ## Links
 
 - Repository (MIT): https://github.com/skiitk2510/carecompanion
-- Live MCP endpoint + demo: `https://<render-host>/` (MCP at `/mcp`) — _fill in_
+- Live MCP endpoint + demo: none (not deployed) — local run per README Quickstart
 - Demo video: _fill in_
 - Product feedback: `docs/product-feedback.md` · Friction log: `docs/friction-log.md`
